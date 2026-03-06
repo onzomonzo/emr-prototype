@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EMR 진료 화면 - 묶음처방 프로토타입</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif; background: #F8F9FA; color: #374151; font-size: 12px; }
+
+/* === Top Header === */
+.top-header {
+  display: flex; align-items: center; justify-content: space-between;
+  height: 48px; padding: 0 16px; background: #fff;
+  border-bottom: 1px solid #E5E7EB;
+}
+.header-left { display: flex; align-items: center; gap: 16px; }
+.header-left .title { font-size: 16px; font-weight: 700; color: #111827; }
+.header-left .chart-num, .header-left .patient-name { font-size: 14px; font-weight: 600; color: #111827; }
+.header-left .patient-info, .header-left .patient-id { font-size: 12px; color: #6B7280; }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+.tag-success { background: #D1FAE5; color: #065F46; }
+.tag-info { background: #DBEAFE; color: #1E40AF; }
+.tabs { display: flex; gap: 0; margin-left: 16px; }
+.tab { padding: 8px 16px; font-size: 12px; color: #6B7280; cursor: pointer; border-bottom: 2px solid transparent; }
+.tab.active { color: #7C3AED; font-weight: 600; border-bottom-color: #7C3AED; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.online-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
+.doctor-name { font-size: 12px; color: #374151; }
+
+/* === A/B/C Test Tabs (Main Screen Level) === */
+.abtest-bar {
+  display: flex; align-items: center; gap: 0; padding: 0 16px;
+  border-bottom: 1px solid #E5E7EB; background: #fff; flex-shrink: 0;
+}
+.abtest-tab {
+  padding: 10px 24px; font-size: 13px; font-weight: 500; color: #6B7280;
+  cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.15s;
+  user-select: none;
+}
+.abtest-tab:hover { color: #374151; background: #F3F4F6; }
+.abtest-tab.active-a { color: #7C3AED; border-bottom-color: #7C3AED; font-weight: 700; }
+.abtest-tab.active-b { color: #2563EB; border-bottom-color: #2563EB; font-weight: 700; }
+.abtest-tab.active-c { color: #059669; border-bottom-color: #059669; font-weight: 700; }
+.abtest-tab .tab-badge {
+  display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px;
+  font-weight: 600; margin-right: 6px; color: #fff;
+}
+.abtest-tab .tab-badge.badge-a { background: #7C3AED; }
+.abtest-tab .tab-badge.badge-b { background: #2563EB; }
+.abtest-tab .tab-badge.badge-c { background: #059669; }
+.abtest-panel { display: none; flex-direction: column; flex: 1; min-height: 0; position: relative; }
+.abtest-panel.active { display: flex; }
+
+/* === Content Area === */
+.content-area { display: flex; flex: 1; min-height: 0; }
+.column { display: flex; flex-direction: column; gap: 8px; padding: 8px; border-right: 1px solid #E5E7EB; background: #F8F9FA; }
+.column-1 { width: 360px; }
+.column-2 { flex: 1; }
+.column-3 { width: 520px; }
+.column-4 { width: 260px; }
+
+.card {
+  background: #fff; border: 1px solid #E5E7EB; border-radius: 6px;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.card.flex-1 { flex: 1; }
+.card-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid #E5E7EB; font-weight: 600; font-size: 12px; color: #111827;
+}
+.card-body { flex: 1; overflow-y: auto; }
+
+/* === Patient Summary === */
+.patient-summary { height: 200px; }
+.patient-summary .card-body { padding: 12px; }
+.summary-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 11px; }
+.summary-label { color: #6B7280; width: 70px; flex-shrink: 0; }
+.summary-value { color: #374151; }
+
+/* === Visit History === */
+.visit-item { display: flex; align-items: center; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #F3F4F6; cursor: pointer; }
+.visit-item:hover { background: #F9FAFB; }
+.visit-item.selected { background: #F3E8FF; }
+.visit-date { width: 80px; color: #374151; }
+.visit-dept { width: 50px; color: #6B7280; }
+.visit-doctor { color: #6B7280; }
+
+/* === Diagnosis Table === */
+.table-container { width: 100%; overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.data-table th {
+  background: #F8F9FA; padding: 6px 8px; text-align: left;
+  font-weight: 500; color: #6B7280; border-bottom: 1px solid #E5E7EB;
+  white-space: nowrap; position: sticky; top: 0;
+}
+.data-table td { padding: 4px 8px; border-bottom: 1px solid #F3F4F6; color: #374151; }
+.data-table tr:hover { background: #F9FAFB; }
+
+/* === Bundle Prescription (Column 3) === */
+.bp-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid #E5E7EB;
+}
+.bp-header .bp-title { font-size: 13px; font-weight: 700; color: #111827; flex: 1; }
+.bp-header .icon-btn {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  color: #6B7280; cursor: pointer; border: none; background: none; font-size: 14px;
+  border-radius: 4px;
+}
+.bp-header .icon-btn:hover { background: #F3F4F6; color: #111827; }
+.bp-header .icon-btn.add-btn:hover { color: #7C3AED; background: #F3E8FF; }
+.bp-toolbar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-bottom: 1px solid #E5E7EB; background: #fff;
+}
+.bp-toolbar .icon-btn {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  color: #6B7280; cursor: pointer; border: 1px solid #E5E7EB; background: #fff; border-radius: 4px;
+}
+.bp-toolbar .icon-btn:hover { background: #F3F4F6; color: #111827; }
+.bp-toolbar .bp-search-input {
+  flex: 1; height: 28px; padding: 4px 8px 4px 28px; border: 1px solid #E5E7EB; border-radius: 4px;
+  font-size: 11px; font-family: inherit; outline: none; background: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: 8px center;
+}
+.bp-toolbar .bp-search-input:focus { border-color: #7C3AED; }
+.bp-content { display: flex; flex: 1; min-height: 0; }
+/* Left list */
+.bp-list { width: 40%; border-right: 1px solid #E5E7EB; overflow-y: auto; }
+.bp-cat { display: flex; align-items: center; gap: 6px; padding: 6px 10px; font-size: 11px; font-weight: 500; color: #111827; }
+.bp-cat svg { flex-shrink: 0; color: #9CA3AF; }
+.bp-item {
+  display: flex; align-items: center; padding: 5px 10px 5px 20px; font-size: 11px; color: #374151;
+  cursor: pointer; border-left: 3px solid transparent; position: relative;
+}
+.bp-item::before { content: '\2013'; margin-right: 6px; color: #9CA3AF; }
+.bp-item:hover { background: #F9FAFB; }
+.bp-item.selected { background: #F3E8FF; border-left-color: #7C3AED; color: #7C3AED; font-weight: 500; }
+.bp-item-l2 { padding-left: 36px; }
+/* Right detail */
+.bp-detail { width: 60%; overflow-y: auto; display: flex; flex-direction: column; }
+.bp-info {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-bottom: 1px solid #E5E7EB; font-size: 11px; color: #374151;
+}
+.bp-info .bp-info-val { color: #111827; font-weight: 500; }
+.bp-info .bp-info-sep { color: #D1D5DB; }
+.bp-info .spacer { flex: 1; }
+.bp-info .icon-btn {
+  width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+  color: #6B7280; cursor: pointer; border: none; background: none; border-radius: 4px;
+}
+.bp-info .icon-btn:hover { background: #F3F4F6; color: #7C3AED; }
+.bp-section { padding: 10px 12px; }
+.bp-section + .bp-section { border-top: 1px solid #E5E7EB; }
+.bp-section-header {
+  display: flex; align-items: center; margin-bottom: 6px;
+}
+.bp-section-title { font-size: 12px; font-weight: 700; color: #111827; flex: 1; }
+.bp-section-link {
+  width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+  color: #9CA3AF; cursor: pointer; border: none; background: none; border-radius: 4px;
+}
+.bp-section-link:hover { color: #7C3AED; background: #F3E8FF; }
+.bp-section-item { padding: 3px 0; font-size: 11px; color: #374151; }
+
+/* === Column 4 (Symptoms / Memo) === */
+.symptoms-card { height: 200px; }
+.textarea-field {
+  width: 100%; border: 1px solid #E5E7EB; border-radius: 4px;
+  background: #F8F9FA; padding: 8px; font-size: 11px; resize: none;
+  font-family: inherit; color: #374151; outline: none;
+}
+.textarea-field:focus { border-color: #7C3AED; }
+.tag-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.tag-small { padding: 4px 8px; background: #F8F9FA; border: 1px solid #E5E7EB; border-radius: 4px; font-size: 10px; color: #374151; }
+
+/* === Modal Overlay === */
+.modal-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(0,0,0,0.5); z-index: 1000;
+  justify-content: center; align-items: center;
+}
+.modal-overlay.active { display: flex; }
+
+/* === Popup === */
+.popup {
+  background: #fff; border-radius: 8px; border: 1px solid #E5E7EB;
+  width: 1400px; max-width: 95vw; height: 90%;
+  display: flex; flex-direction: column;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.15);
+  animation: popupIn 0.2s ease-out;
+  overflow: hidden;
+}
+@keyframes popupIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.popup-topbar {
+  display: flex; align-items: center; padding: 16px 24px;
+  border-bottom: 1px solid #E5E7EB;
+}
+.popup-topbar .popup-title { font-size: 18px; font-weight: 700; color: #111827; }
+.popup-topbar .spacer { flex: 1; }
+.popup-topbar .close-btn {
+  width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: #6B7280; background: none; border: none; font-size: 20px; border-radius: 4px;
+}
+.popup-topbar .close-btn:hover { background: #F3F4F6; color: #111827; }
+
+.popup-subheader {
+  display: flex; align-items: center; padding: 12px 24px;
+}
+.popup-subheader .sub-title { font-size: 14px; font-weight: 600; color: #111827; }
+.popup-subheader .spacer { flex: 1; }
+.toggle-group { display: flex; align-items: center; gap: 16px; }
+.toggle-group label { font-size: 12px; color: #6B7280; }
+.toggle-switch {
+  position: relative; width: 36px; height: 20px; background: #E5E7EB;
+  border-radius: 10px; cursor: pointer; display: inline-block; vertical-align: middle;
+}
+.toggle-switch.active { background: #7C3AED; }
+.toggle-switch .knob {
+  position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+  background: #fff; border-radius: 50%; transition: left 0.2s;
+}
+.toggle-switch.active .knob { left: 18px; }
+.btn-primary {
+  padding: 8px 16px; background: #7C3AED; color: #fff;
+  border: none; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer;
+}
+.btn-primary:hover { background: #6D28D9; }
+.btn-secondary {
+  padding: 10px 20px; background: #fff; color: #374151;
+  border: 1px solid #E5E7EB; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.btn-secondary:hover { background: #F9FAFB; }
+.btn-save {
+  padding: 10px 20px; background: #7C3AED; color: #fff;
+  border: none; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.btn-save:hover { background: #6D28D9; }
+
+.popup-form {
+  display: flex; gap: 24px; padding: 16px 24px; align-items: flex-end;
+}
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field .field-label { font-size: 12px; color: #374151; }
+.form-field .field-label .required { color: #EF4444; }
+.form-input {
+  height: 32px; padding: 6px 10px; border: 1px solid #E5E7EB; border-radius: 4px;
+  font-size: 12px; font-family: inherit; outline: none; background: #fff;
+}
+.form-input:focus { border-color: #7C3AED; }
+.form-select {
+  height: 32px; padding: 6px 10px; border: 1px solid #E5E7EB; border-radius: 4px;
+  font-size: 12px; font-family: inherit; background: #fff; outline: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  padding-right: 28px;
+}
+.form-select:focus { border-color: #7C3AED; }
+.checkbox-group { display: flex; align-items: center; gap: 16px; height: 32px; }
+.checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #374151; }
+.checkbox-item input { width: 16px; height: 16px; accent-color: #7C3AED; }
+
+/* Popup sections */
+.popup-section { padding: 0 24px; display: flex; flex-direction: column; }
+.popup-section-grow { flex: 1; padding: 0 24px; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.section-table { border: 1px solid #E5E7EB; border-radius: 4px; overflow: hidden; }
+.section-table.flex-1 { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.section-table .data-table { width: 100%; }
+.section-table .table-body-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+.search-bar { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.search-bar label { font-size: 11px; color: #6B7280; white-space: nowrap; }
+.search-input {
+  height: 28px; padding: 4px 8px; border: 1px solid #E5E7EB; border-radius: 4px;
+  font-size: 11px; width: 200px; outline: none; font-family: inherit;
+}
+.search-input:focus { border-color: #7C3AED; }
+
+/* Diagnosis table wrapper with fixed max height */
+.diagnosis-wrapper {
+  border: 1px solid #E5E7EB; border-radius: 4px; overflow: hidden;
+  display: flex; flex-direction: column; max-height: 200px;
+}
+.diagnosis-wrapper .table-header-fixed table { width: 100%; }
+.diagnosis-wrapper .table-body-scroll { flex: 1; overflow-y: auto; min-height: 60px; }
+.diagnosis-wrapper .table-body-scroll table { width: 100%; }
+
+.popup-bottom {
+  display: flex; gap: 24px; padding: 16px 24px;
+}
+.popup-bottom .bottom-card {
+  flex: 1; border: 1px solid #E5E7EB; border-radius: 6px; background: #fff; overflow: hidden;
+}
+.bottom-card-header {
+  display: flex; align-items: center; padding: 10px 12px;
+  border-bottom: 1px solid #E5E7EB; font-size: 13px; font-weight: 600; color: #111827;
+}
+.bottom-card-header .spacer { flex: 1; }
+.bottom-card-header .counter { font-size: 11px; color: #9CA3AF; font-weight: 400; }
+.bottom-card-body { padding: 12px; }
+
+.popup-footer {
+  display: flex; justify-content: flex-end; gap: 12px;
+  padding: 16px 24px; border-top: 1px solid #E5E7EB;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+
+/* Status bar row */
+.status-bar {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border-bottom: 1px solid #E5E7EB; background: #F8F9FA;
+}
+.status-bar button {
+  padding: 4px 12px; font-size: 11px; border: 1px solid #E5E7EB;
+  background: #fff; border-radius: 4px; cursor: pointer; color: #374151;
+}
+.status-bar button.active { background: #7C3AED; color: #fff; border-color: #7C3AED; }
+
+/* === Prescription Tree & Bundle Group === */
+.rx-icon {
+  position: relative; text-align: center; padding: 0 !important; width: 24px;
+}
+.tri-icon {
+  font-size: 8px; color: #F59E0B; display: inline-block; line-height: 1;
+}
+.tri-icon.child {
+  font-size: 7px; color: #F59E0B; position: relative; z-index: 1;
+}
+.bundle-group-row {
+  cursor: pointer; background: #FAFAFA;
+}
+.bundle-group-row:hover { background: #F3F4F6 !important; }
+.bundle-group-row td { font-weight: 500; }
+.bundle-toggle-icon {
+  font-size: 10px; color: #7C3AED; display: inline-block; transition: transform 0.15s;
+}
+.bundle-toggle-icon.collapsed { transform: rotate(-90deg); }
+.bundle-child-row td:first-child {
+  position: relative; padding-left: 4px !important;
+}
+/* Tree lines */
+.tree-line {
+  position: absolute; left: 8px;
+}
+.tree-line.mid::before {
+  content: ''; position: absolute; left: 0; top: -14px; width: 1px; height: 28px;
+  background: #D1D5DB;
+}
+.tree-line.mid::after {
+  content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 1px;
+  background: #D1D5DB;
+}
+.tree-line.last::before {
+  content: ''; position: absolute; left: 0; top: -14px; width: 1px; height: 28px;
+  background: #D1D5DB;
+}
+.tree-line.last::after {
+  content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 1px;
+  background: #D1D5DB;
+}
+.bundle-child-row.last-child .tree-line.last::before {
+  height: 28px;
+}
+.bundle-child-row { }
+.bundle-child-row.hidden { display: none; }
+/* Nested bundle: level-1 children (direct children of top-level bundle) */
+.bundle-child-row.level-1 td:first-child {
+  position: relative; padding-left: 4px !important;
+}
+.bundle-child-row.level-1 .tree-line { left: 8px; }
+/* Nested bundle: level-2 children (children of sub-bundle like ua10 inside 고당고) */
+.bundle-child-row.level-2 td:first-child {
+  position: relative; padding-left: 20px !important;
+}
+.bundle-child-row.level-2 .tree-line { left: 24px; }
+/* Sub-bundle group row (a bundle-group inside another bundle) */
+.bundle-child-row.sub-group { cursor: pointer; background: #FAFAFA; }
+.bundle-child-row.sub-group:hover { background: #F3F4F6 !important; }
+.bundle-child-row.sub-group td { font-weight: 500; }
+
+/* Layout wrapper */
+.page-wrapper {
+  display: flex; flex-direction: column; height: 100vh;
+}
+.popup-inner { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: hidden; }
+
+/* === Choice Popup (묶음 등록 방식 선택) === */
+.choice-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 1100;
+  justify-content: center; align-items: center;
+}
+.choice-overlay.active { display: flex; }
+.choice-popup {
+  background: #fff; border-radius: 12px; border: 1px solid #E5E7EB;
+  width: 560px; max-width: 90vw;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.18);
+  animation: popupIn 0.2s ease-out;
+  overflow: hidden;
+}
+.choice-popup-header {
+  padding: 20px 24px 12px; border-bottom: 1px solid #F3F4F6;
+}
+.choice-popup-header h3 { font-size: 16px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.choice-popup-header p { font-size: 12px; color: #6B7280; }
+.choice-popup-body {
+  display: flex; gap: 16px; padding: 20px 24px;
+}
+.choice-card {
+  flex: 1; border: 2px solid #E5E7EB; border-radius: 10px; padding: 20px 16px;
+  display: flex; flex-direction: column; align-items: center;
+  background: #fff;
+}
+.choice-card .choice-diagram {
+  width: 100%; height: 180px; margin-bottom: 16px;
+  display: flex; justify-content: center; align-items: center;
+}
+.choice-label { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 4px; text-align: center; }
+.choice-desc { font-size: 11px; color: #6B7280; text-align: center; line-height: 1.5; }
+.choice-popup-footer {
+  padding: 12px 24px 16px; display: flex; justify-content: center;
+}
+.choice-popup-footer .btn-text-cancel {
+  background: none; border: none; color: #6B7280; font-size: 12px; cursor: pointer; padding: 6px 16px;
+  font-family: inherit;
+}
+.choice-popup-footer .btn-text-cancel:hover { color: #111827; }
+
+/* Diagram styles */
+.diagram-box {
+  width: 100%; height: 100%; position: relative;
+}
+.dg-node {
+  display: flex; align-items: center; gap: 6px; padding: 5px 10px;
+  border-radius: 6px; font-size: 11px; font-weight: 500; white-space: nowrap;
+}
+.dg-node.bundle { background: #F3E8FF; color: #7C3AED; border: 1.5px solid #C4B5FD; }
+.dg-node.item { background: #F9FAFB; color: #374151; border: 1.5px solid #D1D5DB; }
+.dg-node.item-flat { background: #F0FDF4; color: #166534; border: 1.5px solid #86EFAC; }
+.dg-connector {
+  position: absolute; border-left: 2px solid #C4B5FD;
+}
+.dg-branch {
+  position: absolute; border-bottom: 2px solid #C4B5FD; border-left: 2px solid #C4B5FD;
+  border-bottom-left-radius: 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+<!-- Top Header (shared across A/B/C) -->
+<div class="top-header">
+  <div class="header-left">
+    <span class="title">진료</span>
+    <span class="chart-num">2398</span>
+    <span class="patient-name">테스트2</span>
+    <span class="patient-info">(남/52)</span>
+    <span class="patient-id">740112-1000002</span>
+    <span class="tag tag-success">재진</span>
+    <span class="tag tag-info">공단</span>
+    <div class="tabs">
+      <div class="tab active">진료</div>
+      <div class="tab">처방</div>
+      <div class="tab">검사</div>
+      <div class="tab">서식</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="online-dot"></span>
+    <span class="doctor-name">doctor 카야</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </div>
+</div>
+
+<!-- A/B/C Test Tabs (EMR Main Screen Level) -->
+<div class="abtest-bar">
+  <div class="abtest-tab active-a" onclick="switchVariant('a')" id="abtab-a"><span class="tab-badge badge-a">A</span>A안</div>
+  <div class="abtest-tab" onclick="switchVariant('b')" id="abtab-b"><span class="tab-badge badge-b">B</span>B안</div>
+  <div class="abtest-tab" onclick="switchVariant('c')" id="abtab-c"><span class="tab-badge badge-c">C</span>C안</div>
+</div>
+
+<!-- ==================== A안 (전체 EMR 화면) ==================== -->
+<div class="abtest-panel active" id="variant-a">
+  <div class="content-area">
+    <!-- Column 1 -->
+    <div class="column column-1">
+      <div class="card patient-summary">
+        <div class="card-header">환자 진료이력 요약</div>
+        <div class="card-body">
+          <div class="summary-row"><span class="summary-label">주요 상병</span><span class="summary-value">본태성 고혈압, 2형 당뇨병</span></div>
+          <div class="summary-row"><span class="summary-label">알레르기</span><span class="summary-value" style="color:#EF4444;">페니실린, 아스피린</span></div>
+          <div class="summary-row"><span class="summary-label">최근 내원</span><span class="summary-value">2026-02-15 (내과)</span></div>
+          <div class="summary-row"><span class="summary-label">투약중</span><span class="summary-value">아모잘탄정, 메트포르민</span></div>
+          <div class="summary-row"><span class="summary-label">특이사항</span><span class="summary-value">-</span></div>
+        </div>
+      </div>
+      <div class="card flex-1">
+        <div class="card-header">내원이력</div>
+        <div class="card-body">
+          <div class="visit-item selected"><span class="visit-date">2026-03-06</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2026-02-15</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2026-01-20</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-12-10</span><span class="visit-dept">피부과</span><span class="visit-doctor">이민수</span></div>
+          <div class="visit-item"><span class="visit-date">2025-11-05</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-10-01</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-09-08</span><span class="visit-dept">정형외과</span><span class="visit-doctor">박정호</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 2 -->
+    <div class="column column-2">
+      <div class="card flex-1">
+        <div class="card-header">
+          진단 및 처방
+          <div style="flex:1"></div>
+          <div class="status-bar" style="border:none;background:none;padding:0;">
+            <button class="active">Dx</button><button>Rx</button><button>처치</button><button>검사</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:8px;">
+          <div style="margin-bottom:12px;">
+            <div class="section-table">
+              <table class="data-table"><thead><tr>
+                <th style="width:40px;">순</th><th style="width:60px;">상병코드</th><th>명칭</th><th style="width:40px;">의증</th><th style="width:40px;">배제</th><th style="width:32px;">좌</th><th style="width:32px;">우</th><th style="width:60px;">진료과</th>
+              </tr></thead><tbody></tbody></table>
+            </div>
+            <div class="search-bar"><label>상병 검색</label><input type="text" class="search-input" placeholder="상병 검색"></div>
+          </div>
+          <div class="section-table flex-1">
+            <table class="data-table" id="mainRxTable-a"><thead><tr>
+              <th style="width:24px;"></th><th style="width:50px;">사용코드</th><th>명칭</th><th style="width:40px;">용량</th><th style="width:36px;">일투</th><th style="width:36px;">일수</th><th style="width:36px;">용법</th><th style="width:50px;">특정내역</th><th style="width:32px;">청구</th><th style="width:56px;">수납방법</th><th style="width:36px;">검체</th><th style="width:40px;">단가</th>
+            </tr></thead><tbody>
+              <tr><td class="rx-icon"><span class="tri-icon">&#9650;</span></td><td>bun</td><td>BUN(Serum)</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-group-row" onclick="toggleBundleGroup(this)" data-level="0">
+                <td class="rx-icon"><span class="bundle-toggle-icon expanded">&#9660;</span></td>
+                <td></td><td style="font-weight:600; color:#7C3AED;">고당고 추가</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              </tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>hb</td><td>일반혈액검사(CBC)-[혈구세포-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ast</td><td>AST (SGOT)[Serum]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>alt</td><td>ALT (SGPT)[Serum]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ggt</td><td>&gamma;-GTP [화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uric...</td><td>요산[화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>cr</td><td>크레아티닌[화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1 sub-group" data-parent="godanggo" onclick="toggleBundleGroup(this)" data-level="1">
+                <td class="rx-icon"><span class="tree-line mid"></span><span class="bundle-toggle-icon expanded">&#9660;</span></td>
+                <td>ua10</td><td style="font-weight:500;">요 일반검사 10종</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              </tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>urin...</td><td>요 일반검사[화학반응-장비측정]-10종</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ubil</td><td>Bilirubin</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uglu</td><td>Glucose</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uket</td><td>Ketones</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uleu</td><td>Leukocyte</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>unit</td><td>Nitrite</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uob</td><td>Occult Blood</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>upro</td><td>Protein</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>usg</td><td>Specific gravity</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uuro</td><td>Urobilinogen</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uph</td><td>pH</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2 last-child" data-parent="ua10"><td class="rx-icon"><span class="tree-line last"></span><span class="tri-icon child">&#9650;</span></td><td>um</td><td>요침사검사-[관찰판정-육안&middot;장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody></table>
+          </div>
+          <div class="search-bar">
+            <label>처방 검색</label><input type="text" class="search-input" placeholder="처방 검색">
+            <label style="margin-left:16px;">처방 검색</label><input type="text" class="search-input" placeholder="">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 3: Bundle Prescription 2-Column -->
+    <div class="column column-3">
+      <div class="card flex-1">
+        <!-- Header -->
+        <div class="bp-header">
+          <span class="bp-title">묶음처방</span>
+          <button class="icon-btn" title="설정"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+          <button class="icon-btn add-btn" title="신규 묶음 등록" onclick="openChoicePopup('a')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="icon-btn" title="더보기"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+        <!-- Toolbar -->
+        <div class="bp-toolbar">
+          <button class="icon-btn" title="리스트뷰"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+          <button class="icon-btn" title="즐겨찾기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+          <input type="text" class="bp-search-input" placeholder="카테고리 이름, 묶음코드, 묶음명칭, 세부키워드로 검색">
+        </div>
+        <!-- 2-Column Content -->
+        <div class="bp-content">
+          <!-- Left: List -->
+          <div class="bp-list">
+            <div class="bp-cat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 일반 묶음</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Obesity test 1</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Obesity test 2</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Acne</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">치치</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">AGE</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">MAST</div>
+            <div class="bp-item selected" onclick="selectBundleItem(this)">Alopecia</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Anemia</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Anxiety</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">non-AR</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">ARS</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">BPH</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">CBC+diff</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Conjunctivitis</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">COVID-19</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Cystitis</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dermatology</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Derma oint</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DES</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DL</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DM</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DM lab</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dysmenorrhea</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dizziness</div>
+          </div>
+          <!-- Right: Detail -->
+          <div class="bp-detail">
+            <div class="bp-info">
+              <span class="bp-info-val">alopecia</span>
+              <span class="bp-info-sep">|</span>
+              <span class="bp-info-val">Alopecia</span>
+              <span class="bp-info-sep">|</span>
+              <span>단가합산</span>
+              <span class="spacer"></span>
+              <button class="icon-btn" title="묶음 편집" onclick="openPopup('a')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+            </div>
+            <div class="bp-section">
+              <div class="bp-section-header">
+                <span class="bp-section-title">진단</span>
+                <button class="bp-section-link" title="상세"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+              </div>
+              <div class="bp-section-item">상세불명의 안드로젠탈모증</div>
+              <div class="bp-section-item">상세불명의 원형 탈모증</div>
+              <div class="bp-section-item">탈모증 NOS</div>
+            </div>
+            <div class="bp-section">
+              <div class="bp-section-header">
+                <span class="bp-section-title">처방</span>
+                <button class="bp-section-link" title="상세"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+              </div>
+              <div class="bp-section-item">프로페시아정1mg</div>
+              <div class="bp-section-item">아보다트연질캡슐0.5mg</div>
+              <div class="bp-section-item">모나드정</div>
+              <div class="bp-section-item">알닥톤필름코팅정25mg</div>
+              <div class="bp-section-item">판시딜캡슐</div>
+              <div class="bp-section-item">동성미녹시딜액3%(외용)</div>
+              <div class="bp-section-item">동성미녹시딜액5%(외용)</div>
+              <div class="bp-section-item">바이모정5밀리그램(미녹시딜)_(5mg/1정)(내복)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 4 -->
+    <div class="column column-4" style="border-right:none;">
+      <div class="card symptoms-card">
+        <div class="card-header">증상</div>
+        <div class="card-body" style="padding:12px; display:flex; flex-direction:column; gap:8px;">
+          <textarea class="textarea-field" rows="2" placeholder="('/'입력하여 상용구 검색)"></textarea>
+          <div class="tag-row"><span class="tag-small">_event</span></div>
+        </div>
+      </div>
+      <div class="card flex-1">
+        <div class="card-header">메모<div style="flex:1"></div></div>
+        <div class="card-body" style="padding:12px;"><textarea class="textarea-field" style="height:100%;" placeholder="메모를 입력하세요..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- A안 Popup Overlay -->
+  <div class="modal-overlay" id="popupOverlay-a" onclick="closePopupOutside(event, 'a')">
+    <div class="popup" onclick="event.stopPropagation()">
+      <div class="popup-topbar">
+        <span class="popup-title">신규 묶음 등록</span><span class="spacer"></span>
+        <button class="close-btn" onclick="closePopup('a')">&times;</button>
+      </div>
+      <div class="popup-inner">
+        <div class="popup-subheader">
+          <span class="sub-title">묶음 신규 추가</span><span class="spacer"></span>
+          <div class="toggle-group"><label>즐겨찾기</label><span class="toggle-switch" onclick="this.classList.toggle('active')"><span class="knob"></span></span><label>사용여부</label><span class="toggle-switch active" onclick="this.classList.toggle('active')"><span class="knob"></span></span><button class="btn-primary">새로작성</button></div>
+        </div>
+        <div class="popup-form">
+          <div class="form-field" style="width:140px;"><span class="field-label">묶음코드 <span class="required">*</span></span><input type="text" class="form-input" style="width:100%;"></div>
+          <div class="form-field" style="width:200px;"><span class="field-label">묶음명칭 <span class="required">*</span></span><input type="text" class="form-input" style="width:100%;"></div>
+          <div class="form-field" style="width:120px;"><span class="field-label">묶음가 <span class="required">*</span></span><select class="form-select" style="width:100%;"><option>단가합산</option></select></div>
+          <div class="form-field" style="width:100px;"><span class="field-label">영수증 출력</span><select class="form-select" style="width:100%;"><option>없음</option></select></div>
+          <div class="form-field"><span class="field-label">기타</span><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox"> 묶음풀어서처방</label><label class="checkbox-item"><input type="checkbox"> 구두처방 가능</label><label class="checkbox-item"><input type="checkbox"> 내원일 비청구</label></div></div>
+        </div>
+        <div class="popup-section" style="margin-bottom:8px;">
+          <div class="diagnosis-wrapper">
+            <div class="table-header-fixed"><table class="data-table"><thead><tr><th style="width:24px;"></th><th style="width:60px;">상병코드</th><th>명칭</th><th style="width:40px;">의증</th><th style="width:40px;">배제</th><th style="width:32px;">좌</th><th style="width:32px;">우</th><th style="width:60px;">진료과</th><th style="width:56px;">특정기호</th><th style="width:56px;">상해외인</th><th style="width:40px;">수술</th></tr></thead></table></div>
+            <div class="table-body-scroll"><table class="data-table"><tbody id="diagnosisBody-a"></tbody></table><div style="min-height:20px;"></div></div>
+            <div style="border-top:1px solid #E5E7EB; padding:6px 8px; display:flex; align-items:center; gap:8px; background:#fff;"><label style="font-size:11px; color:#6B7280; white-space:nowrap;">상병 검색</label><input type="text" style="height:24px; padding:2px 8px; border:1px solid #E5E7EB; border-radius:4px; font-size:11px; width:200px; outline:none; font-family:inherit;" placeholder="상병 검색"></div>
+          </div>
+        </div>
+        <div class="popup-section-grow" style="margin-bottom:8px;">
+          <div class="section-table flex-1">
+            <div class="table-header-fixed"><table class="data-table"><thead><tr><th style="width:24px;"></th><th style="width:50px;">사용코드</th><th>명칭</th><th style="width:40px;">용량</th><th style="width:36px;">일투</th><th style="width:36px;">일수</th><th style="width:36px;">용법</th><th style="width:50px;">특정내역</th><th style="width:32px;">청구</th><th style="width:56px;">수납방법</th><th style="width:36px;">검체</th><th style="width:40px;">단가</th><th style="width:36px;">단위</th><th style="width:70px;">청구코드</th><th style="width:36px;">예외</th><th style="width:36px;">원내</th><th style="width:36px;">가루</th></tr></thead></table></div>
+            <div class="table-body-scroll"><table class="data-table"><tbody id="popupRxBody-a"></tbody></table></div>
+          </div>
+        </div>
+        <div class="popup-bottom">
+          <div class="bottom-card"><div class="bottom-card-header">증상</div><div class="bottom-card-body"><textarea class="textarea-field" rows="2" placeholder="('/'입력하여 상용구 검색)"></textarea><div class="tag-row" style="margin-top:8px;"><span class="tag-small">_event</span></div></div></div>
+          <div class="bottom-card"><div class="bottom-card-header">특정내역(MX999)<span class="spacer"></span><span class="counter">0/700 bytes</span></div><div class="bottom-card-body"><textarea class="textarea-field" rows="2" placeholder="특정내역(MX999)을 입력해주세요."></textarea><div class="tag-row" style="margin-top:8px;"><span class="tag-small">_event</span></div></div></div>
+        </div>
+        <div class="popup-footer"><button class="btn-secondary" onclick="closePopup('a')">취소</button><button class="btn-save" onclick="alert('A안 저장되었습니다.'); closePopup('a');">저장</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== B안 (전체 EMR 화면) ==================== -->
+<div class="abtest-panel" id="variant-b">
+  <div class="content-area">
+    <!-- Column 1 -->
+    <div class="column column-1">
+      <div class="card patient-summary">
+        <div class="card-header">환자 진료이력 요약</div>
+        <div class="card-body">
+          <div class="summary-row"><span class="summary-label">주요 상병</span><span class="summary-value">본태성 고혈압, 2형 당뇨병</span></div>
+          <div class="summary-row"><span class="summary-label">알레르기</span><span class="summary-value" style="color:#EF4444;">페니실린, 아스피린</span></div>
+          <div class="summary-row"><span class="summary-label">최근 내원</span><span class="summary-value">2026-02-15 (내과)</span></div>
+          <div class="summary-row"><span class="summary-label">투약중</span><span class="summary-value">아모잘탄정, 메트포르민</span></div>
+          <div class="summary-row"><span class="summary-label">특이사항</span><span class="summary-value">-</span></div>
+        </div>
+      </div>
+      <div class="card flex-1">
+        <div class="card-header">내원이력</div>
+        <div class="card-body">
+          <div class="visit-item selected"><span class="visit-date">2026-03-06</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2026-02-15</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2026-01-20</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-12-10</span><span class="visit-dept">피부과</span><span class="visit-doctor">이민수</span></div>
+          <div class="visit-item"><span class="visit-date">2025-11-05</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-10-01</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-09-08</span><span class="visit-dept">정형외과</span><span class="visit-doctor">박정호</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 2 -->
+    <div class="column column-2">
+      <div class="card flex-1">
+        <div class="card-header">
+          진단 및 처방
+          <div style="flex:1"></div>
+          <div class="status-bar" style="border:none;background:none;padding:0;">
+            <button class="active">Dx</button><button>Rx</button><button>처치</button><button>검사</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:8px;">
+          <div style="margin-bottom:12px;">
+            <div class="section-table">
+              <table class="data-table"><thead><tr>
+                <th style="width:40px;">순</th><th style="width:60px;">상병코드</th><th>명칭</th><th style="width:40px;">의증</th><th style="width:40px;">배제</th><th style="width:32px;">좌</th><th style="width:32px;">우</th><th style="width:60px;">진료과</th>
+              </tr></thead><tbody></tbody></table>
+            </div>
+            <div class="search-bar"><label>상병 검색</label><input type="text" class="search-input" placeholder="상병 검색"></div>
+          </div>
+          <div class="section-table flex-1">
+            <table class="data-table" id="mainRxTable-b"><thead><tr>
+              <th style="width:24px;"></th><th style="width:50px;">사용코드</th><th>명칭</th><th style="width:40px;">용량</th><th style="width:36px;">일투</th><th style="width:36px;">일수</th><th style="width:36px;">용법</th><th style="width:50px;">특정내역</th><th style="width:32px;">청구</th><th style="width:56px;">수납방법</th><th style="width:36px;">검체</th><th style="width:40px;">단가</th>
+            </tr></thead><tbody>
+              <tr><td class="rx-icon"><span class="tri-icon">&#9650;</span></td><td>bun</td><td>BUN(Serum)</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-group-row" onclick="toggleBundleGroup(this)" data-level="0">
+                <td class="rx-icon"><span class="bundle-toggle-icon expanded">&#9660;</span></td>
+                <td></td><td style="font-weight:600; color:#7C3AED;">고당고 추가</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              </tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>hb</td><td>일반혈액검사(CBC)-[혈구세포-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ast</td><td>AST (SGOT)[Serum]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>alt</td><td>ALT (SGPT)[Serum]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ggt</td><td>&gamma;-GTP [화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uric...</td><td>요산[화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>cr</td><td>크레아티닌[화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1 sub-group" data-parent="godanggo" onclick="toggleBundleGroup(this)" data-level="1">
+                <td class="rx-icon"><span class="tree-line mid"></span><span class="bundle-toggle-icon expanded">&#9660;</span></td>
+                <td>ua10</td><td style="font-weight:500;">요 일반검사 10종</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              </tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>urin...</td><td>요 일반검사[화학반응-장비측정]-10종</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ubil</td><td>Bilirubin</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uglu</td><td>Glucose</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uket</td><td>Ketones</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uleu</td><td>Leukocyte</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>unit</td><td>Nitrite</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uob</td><td>Occult Blood</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>upro</td><td>Protein</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>usg</td><td>Specific gravity</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uuro</td><td>Urobilinogen</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uph</td><td>pH</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2 last-child" data-parent="ua10"><td class="rx-icon"><span class="tree-line last"></span><span class="tri-icon child">&#9650;</span></td><td>um</td><td>요침사검사-[관찰판정-육안&middot;장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody></table>
+          </div>
+          <div class="search-bar">
+            <label>처방 검색</label><input type="text" class="search-input" placeholder="처방 검색">
+            <label style="margin-left:16px;">처방 검색</label><input type="text" class="search-input" placeholder="">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 3: Bundle Prescription 2-Column -->
+    <div class="column column-3">
+      <div class="card flex-1">
+        <div class="bp-header">
+          <span class="bp-title">묶음처방</span>
+          <button class="icon-btn" title="설정"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+          <button class="icon-btn add-btn" title="신규 묶음 등록" onclick="openChoicePopup('b')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="icon-btn" title="더보기"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+        <div class="bp-toolbar">
+          <button class="icon-btn" title="리스트뷰"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+          <button class="icon-btn" title="즐겨찾기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+          <input type="text" class="bp-search-input" placeholder="카테고리 이름, 묶음코드, 묶음명칭, 세부키워드로 검색">
+        </div>
+        <div class="bp-content">
+          <div class="bp-list">
+            <div class="bp-cat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 일반 묶음</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Obesity test 1</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Obesity test 2</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Acne</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">치치</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">AGE</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">MAST</div>
+            <div class="bp-item selected" onclick="selectBundleItem(this)">Alopecia</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Anemia</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Anxiety</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">non-AR</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">ARS</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">BPH</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">CBC+diff</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Conjunctivitis</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">COVID-19</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Cystitis</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dermatology</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Derma oint</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DES</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DL</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DM</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DM lab</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dysmenorrhea</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dizziness</div>
+          </div>
+          <div class="bp-detail">
+            <div class="bp-info">
+              <span class="bp-info-val">alopecia</span><span class="bp-info-sep">|</span><span class="bp-info-val">Alopecia</span><span class="bp-info-sep">|</span><span>단가합산</span><span class="spacer"></span>
+              <button class="icon-btn" title="묶음 편집" onclick="openPopup('b')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+            </div>
+            <div class="bp-section">
+              <div class="bp-section-header"><span class="bp-section-title">진단</span><button class="bp-section-link" title="상세"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></div>
+              <div class="bp-section-item">상세불명의 안드로젠탈모증</div>
+              <div class="bp-section-item">상세불명의 원형 탈모증</div>
+              <div class="bp-section-item">탈모증 NOS</div>
+            </div>
+            <div class="bp-section">
+              <div class="bp-section-header"><span class="bp-section-title">처방</span><button class="bp-section-link" title="상세"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></div>
+              <div class="bp-section-item">프로페시아정1mg</div>
+              <div class="bp-section-item">아보다트연질캡슐0.5mg</div>
+              <div class="bp-section-item">모나드정</div>
+              <div class="bp-section-item">알닥톤필름코팅정25mg</div>
+              <div class="bp-section-item">판시딜캡슐</div>
+              <div class="bp-section-item">동성미녹시딜액3%(외용)</div>
+              <div class="bp-section-item">동성미녹시딜액5%(외용)</div>
+              <div class="bp-section-item">바이모정5밀리그램(미녹시딜)_(5mg/1정)(내복)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 4 -->
+    <div class="column column-4" style="border-right:none;">
+      <div class="card symptoms-card">
+        <div class="card-header">증상</div>
+        <div class="card-body" style="padding:12px; display:flex; flex-direction:column; gap:8px;">
+          <textarea class="textarea-field" rows="2" placeholder="('/'입력하여 상용구 검색)"></textarea>
+          <div class="tag-row"><span class="tag-small">_event</span></div>
+        </div>
+      </div>
+      <div class="card flex-1">
+        <div class="card-header">메모<div style="flex:1"></div></div>
+        <div class="card-body" style="padding:12px;"><textarea class="textarea-field" style="height:100%;" placeholder="메모를 입력하세요..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B안 Popup Overlay -->
+  <div class="modal-overlay" id="popupOverlay-b" onclick="closePopupOutside(event, 'b')">
+    <div class="popup" onclick="event.stopPropagation()">
+      <div class="popup-topbar">
+        <span class="popup-title">신규 묶음 등록</span><span class="spacer"></span>
+        <button class="close-btn" onclick="closePopup('b')">&times;</button>
+      </div>
+      <div class="popup-inner">
+        <div class="popup-subheader">
+          <span class="sub-title">묶음 신규 추가</span><span class="spacer"></span>
+          <div class="toggle-group"><label>즐겨찾기</label><span class="toggle-switch" onclick="this.classList.toggle('active')"><span class="knob"></span></span><label>사용여부</label><span class="toggle-switch active" onclick="this.classList.toggle('active')"><span class="knob"></span></span><button class="btn-primary">새로작성</button></div>
+        </div>
+        <div class="popup-form">
+          <div class="form-field" style="width:140px;"><span class="field-label">묶음코드 <span class="required">*</span></span><input type="text" class="form-input" style="width:100%;"></div>
+          <div class="form-field" style="width:200px;"><span class="field-label">묶음명칭 <span class="required">*</span></span><input type="text" class="form-input" style="width:100%;"></div>
+          <div class="form-field" style="width:120px;"><span class="field-label">묶음가 <span class="required">*</span></span><select class="form-select" style="width:100%;"><option>단가합산</option></select></div>
+          <div class="form-field" style="width:100px;"><span class="field-label">영수증 출력</span><select class="form-select" style="width:100%;"><option>없음</option></select></div>
+          <div class="form-field"><span class="field-label">기타</span><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox"> 묶음풀어서처방</label><label class="checkbox-item"><input type="checkbox"> 구두처방 가능</label><label class="checkbox-item"><input type="checkbox"> 내원일 비청구</label></div></div>
+        </div>
+        <div class="popup-section" style="margin-bottom:8px;">
+          <div class="diagnosis-wrapper">
+            <div class="table-header-fixed"><table class="data-table"><thead><tr><th style="width:24px;"></th><th style="width:60px;">상병코드</th><th>명칭</th><th style="width:40px;">의증</th><th style="width:40px;">배제</th><th style="width:32px;">좌</th><th style="width:32px;">우</th><th style="width:60px;">진료과</th><th style="width:56px;">특정기호</th><th style="width:56px;">상해외인</th><th style="width:40px;">수술</th></tr></thead></table></div>
+            <div class="table-body-scroll"><table class="data-table"><tbody id="diagnosisBody-b"></tbody></table><div style="min-height:20px;"></div></div>
+            <div style="border-top:1px solid #E5E7EB; padding:6px 8px; display:flex; align-items:center; gap:8px; background:#fff;"><label style="font-size:11px; color:#6B7280; white-space:nowrap;">상병 검색</label><input type="text" style="height:24px; padding:2px 8px; border:1px solid #E5E7EB; border-radius:4px; font-size:11px; width:200px; outline:none; font-family:inherit;" placeholder="상병 검색"></div>
+          </div>
+        </div>
+        <div class="popup-section-grow" style="margin-bottom:8px;">
+          <div class="section-table flex-1">
+            <div class="table-header-fixed"><table class="data-table"><thead><tr><th style="width:24px;"></th><th style="width:50px;">사용코드</th><th>명칭</th><th style="width:40px;">용량</th><th style="width:36px;">일투</th><th style="width:36px;">일수</th><th style="width:36px;">용법</th><th style="width:50px;">특정내역</th><th style="width:32px;">청구</th><th style="width:56px;">수납방법</th><th style="width:36px;">검체</th><th style="width:40px;">단가</th><th style="width:36px;">단위</th><th style="width:70px;">청구코드</th><th style="width:36px;">예외</th><th style="width:36px;">원내</th><th style="width:36px;">가루</th></tr></thead></table></div>
+            <div class="table-body-scroll"><table class="data-table"><tbody id="popupRxBody-b"></tbody></table></div>
+          </div>
+        </div>
+        <div class="popup-bottom">
+          <div class="bottom-card"><div class="bottom-card-header">증상</div><div class="bottom-card-body"><textarea class="textarea-field" rows="2" placeholder="('/'입력하여 상용구 검색)"></textarea><div class="tag-row" style="margin-top:8px;"><span class="tag-small">_event</span></div></div></div>
+          <div class="bottom-card"><div class="bottom-card-header">특정내역(MX999)<span class="spacer"></span><span class="counter">0/700 bytes</span></div><div class="bottom-card-body"><textarea class="textarea-field" rows="2" placeholder="특정내역(MX999)을 입력해주세요."></textarea><div class="tag-row" style="margin-top:8px;"><span class="tag-small">_event</span></div></div></div>
+        </div>
+        <div class="popup-footer"><button class="btn-secondary" onclick="closePopup('b')">취소</button><button class="btn-save" onclick="alert('B안 저장되었습니다.'); closePopup('b');">저장</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== C안 (전체 EMR 화면) ==================== -->
+<div class="abtest-panel" id="variant-c">
+  <div class="content-area">
+    <!-- Column 1 -->
+    <div class="column column-1">
+      <div class="card patient-summary">
+        <div class="card-header">환자 진료이력 요약</div>
+        <div class="card-body">
+          <div class="summary-row"><span class="summary-label">주요 상병</span><span class="summary-value">본태성 고혈압, 2형 당뇨병</span></div>
+          <div class="summary-row"><span class="summary-label">알레르기</span><span class="summary-value" style="color:#EF4444;">페니실린, 아스피린</span></div>
+          <div class="summary-row"><span class="summary-label">최근 내원</span><span class="summary-value">2026-02-15 (내과)</span></div>
+          <div class="summary-row"><span class="summary-label">투약중</span><span class="summary-value">아모잘탄정, 메트포르민</span></div>
+          <div class="summary-row"><span class="summary-label">특이사항</span><span class="summary-value">-</span></div>
+        </div>
+      </div>
+      <div class="card flex-1">
+        <div class="card-header">내원이력</div>
+        <div class="card-body">
+          <div class="visit-item selected"><span class="visit-date">2026-03-06</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2026-02-15</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2026-01-20</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-12-10</span><span class="visit-dept">피부과</span><span class="visit-doctor">이민수</span></div>
+          <div class="visit-item"><span class="visit-date">2025-11-05</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-10-01</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
+          <div class="visit-item"><span class="visit-date">2025-09-08</span><span class="visit-dept">정형외과</span><span class="visit-doctor">박정호</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 2 -->
+    <div class="column column-2">
+      <div class="card flex-1">
+        <div class="card-header">
+          진단 및 처방
+          <div style="flex:1"></div>
+          <div class="status-bar" style="border:none;background:none;padding:0;">
+            <button class="active">Dx</button><button>Rx</button><button>처치</button><button>검사</button>
+          </div>
+        </div>
+        <div class="card-body" style="padding:8px;">
+          <div style="margin-bottom:12px;">
+            <div class="section-table">
+              <table class="data-table"><thead><tr>
+                <th style="width:40px;">순</th><th style="width:60px;">상병코드</th><th>명칭</th><th style="width:40px;">의증</th><th style="width:40px;">배제</th><th style="width:32px;">좌</th><th style="width:32px;">우</th><th style="width:60px;">진료과</th>
+              </tr></thead><tbody></tbody></table>
+            </div>
+            <div class="search-bar"><label>상병 검색</label><input type="text" class="search-input" placeholder="상병 검색"></div>
+          </div>
+          <div class="section-table flex-1">
+            <table class="data-table" id="mainRxTable-c"><thead><tr>
+              <th style="width:24px;"></th><th style="width:50px;">사용코드</th><th>명칭</th><th style="width:40px;">용량</th><th style="width:36px;">일투</th><th style="width:36px;">일수</th><th style="width:36px;">용법</th><th style="width:50px;">특정내역</th><th style="width:32px;">청구</th><th style="width:56px;">수납방법</th><th style="width:36px;">검체</th><th style="width:40px;">단가</th>
+            </tr></thead><tbody>
+              <tr><td class="rx-icon"><span class="tri-icon">&#9650;</span></td><td>bun</td><td>BUN(Serum)</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-group-row" onclick="toggleBundleGroup(this)" data-level="0">
+                <td class="rx-icon"><span class="bundle-toggle-icon expanded">&#9660;</span></td>
+                <td></td><td style="font-weight:600; color:#7C3AED;">고당고 추가</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              </tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>hb</td><td>일반혈액검사(CBC)-[혈구세포-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ast</td><td>AST (SGOT)[Serum]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>alt</td><td>ALT (SGPT)[Serum]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ggt</td><td>&gamma;-GTP [화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uric...</td><td>요산[화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1" data-parent="godanggo"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>cr</td><td>크레아티닌[화학반응-장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-1 sub-group" data-parent="godanggo" onclick="toggleBundleGroup(this)" data-level="1">
+                <td class="rx-icon"><span class="tree-line mid"></span><span class="bundle-toggle-icon expanded">&#9660;</span></td>
+                <td>ua10</td><td style="font-weight:500;">요 일반검사 10종</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              </tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>urin...</td><td>요 일반검사[화학반응-장비측정]-10종</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>ubil</td><td>Bilirubin</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uglu</td><td>Glucose</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uket</td><td>Ketones</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uleu</td><td>Leukocyte</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>unit</td><td>Nitrite</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uob</td><td>Occult Blood</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>upro</td><td>Protein</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>usg</td><td>Specific gravity</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uuro</td><td>Urobilinogen</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2" data-parent="ua10"><td class="rx-icon"><span class="tree-line mid"></span><span class="tri-icon child">&#9650;</span></td><td>uph</td><td>pH</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+              <tr class="bundle-child-row level-2 last-child" data-parent="ua10"><td class="rx-icon"><span class="tree-line last"></span><span class="tri-icon child">&#9650;</span></td><td>um</td><td>요침사검사-[관찰판정-육안&middot;장비측정]</td><td>1</td><td>1</td><td>1</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody></table>
+          </div>
+          <div class="search-bar">
+            <label>처방 검색</label><input type="text" class="search-input" placeholder="처방 검색">
+            <label style="margin-left:16px;">처방 검색</label><input type="text" class="search-input" placeholder="">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 3: Bundle Prescription 2-Column -->
+    <div class="column column-3">
+      <div class="card flex-1">
+        <div class="bp-header">
+          <span class="bp-title">묶음처방</span>
+          <button class="icon-btn" title="설정"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+          <button class="icon-btn add-btn" title="신규 묶음 등록" onclick="openChoicePopup('c')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <button class="icon-btn" title="더보기"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg></button>
+        </div>
+        <div class="bp-toolbar">
+          <button class="icon-btn" title="리스트뷰"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+          <button class="icon-btn" title="즐겨찾기"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></button>
+          <input type="text" class="bp-search-input" placeholder="카테고리 이름, 묶음코드, 묶음명칭, 세부키워드로 검색">
+        </div>
+        <div class="bp-content">
+          <div class="bp-list">
+            <div class="bp-cat"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 일반 묶음</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Obesity test 1</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Obesity test 2</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Acne</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">치치</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">AGE</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">MAST</div>
+            <div class="bp-item selected" onclick="selectBundleItem(this)">Alopecia</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Anemia</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Anxiety</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">non-AR</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">ARS</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">BPH</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">CBC+diff</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Conjunctivitis</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">COVID-19</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Cystitis</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dermatology</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Derma oint</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DES</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DL</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DM</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">DM lab</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dysmenorrhea</div>
+            <div class="bp-item" onclick="selectBundleItem(this)">Dizziness</div>
+          </div>
+          <div class="bp-detail">
+            <div class="bp-info">
+              <span class="bp-info-val">alopecia</span><span class="bp-info-sep">|</span><span class="bp-info-val">Alopecia</span><span class="bp-info-sep">|</span><span>단가합산</span><span class="spacer"></span>
+              <button class="icon-btn" title="묶음 편집" onclick="openPopup('c')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+            </div>
+            <div class="bp-section">
+              <div class="bp-section-header"><span class="bp-section-title">진단</span><button class="bp-section-link" title="상세"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></div>
+              <div class="bp-section-item">상세불명의 안드로젠탈모증</div>
+              <div class="bp-section-item">상세불명의 원형 탈모증</div>
+              <div class="bp-section-item">탈모증 NOS</div>
+            </div>
+            <div class="bp-section">
+              <div class="bp-section-header"><span class="bp-section-title">처방</span><button class="bp-section-link" title="상세"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button></div>
+              <div class="bp-section-item">프로페시아정1mg</div>
+              <div class="bp-section-item">아보다트연질캡슐0.5mg</div>
+              <div class="bp-section-item">모나드정</div>
+              <div class="bp-section-item">알닥톤필름코팅정25mg</div>
+              <div class="bp-section-item">판시딜캡슐</div>
+              <div class="bp-section-item">동성미녹시딜액3%(외용)</div>
+              <div class="bp-section-item">동성미녹시딜액5%(외용)</div>
+              <div class="bp-section-item">바이모정5밀리그램(미녹시딜)_(5mg/1정)(내복)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Column 4 -->
+    <div class="column column-4" style="border-right:none;">
+      <div class="card symptoms-card">
+        <div class="card-header">증상</div>
+        <div class="card-body" style="padding:12px; display:flex; flex-direction:column; gap:8px;">
+          <textarea class="textarea-field" rows="2" placeholder="('/'입력하여 상용구 검색)"></textarea>
+          <div class="tag-row"><span class="tag-small">_event</span></div>
+        </div>
+      </div>
+      <div class="card flex-1">
+        <div class="card-header">메모<div style="flex:1"></div></div>
+        <div class="card-body" style="padding:12px;"><textarea class="textarea-field" style="height:100%;" placeholder="메모를 입력하세요..."></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C안 Popup Overlay -->
+  <div class="modal-overlay" id="popupOverlay-c" onclick="closePopupOutside(event, 'c')">
+    <div class="popup" onclick="event.stopPropagation()">
+      <div class="popup-topbar">
+        <span class="popup-title">신규 묶음 등록</span><span class="spacer"></span>
+        <button class="close-btn" onclick="closePopup('c')">&times;</button>
+      </div>
+      <div class="popup-inner">
+        <div class="popup-subheader">
+          <span class="sub-title">묶음 신규 추가</span><span class="spacer"></span>
+          <div class="toggle-group"><label>즐겨찾기</label><span class="toggle-switch" onclick="this.classList.toggle('active')"><span class="knob"></span></span><label>사용여부</label><span class="toggle-switch active" onclick="this.classList.toggle('active')"><span class="knob"></span></span><button class="btn-primary">새로작성</button></div>
+        </div>
+        <div class="popup-form">
+          <div class="form-field" style="width:140px;"><span class="field-label">묶음코드 <span class="required">*</span></span><input type="text" class="form-input" style="width:100%;"></div>
+          <div class="form-field" style="width:200px;"><span class="field-label">묶음명칭 <span class="required">*</span></span><input type="text" class="form-input" style="width:100%;"></div>
+          <div class="form-field" style="width:120px;"><span class="field-label">묶음가 <span class="required">*</span></span><select class="form-select" style="width:100%;"><option>단가합산</option></select></div>
+          <div class="form-field" style="width:100px;"><span class="field-label">영수증 출력</span><select class="form-select" style="width:100%;"><option>없음</option></select></div>
+          <div class="form-field"><span class="field-label">기타</span><div class="checkbox-group"><label class="checkbox-item"><input type="checkbox"> 묶음풀어서처방</label><label class="checkbox-item"><input type="checkbox"> 구두처방 가능</label><label class="checkbox-item"><input type="checkbox"> 내원일 비청구</label></div></div>
+        </div>
+        <div class="popup-section" style="margin-bottom:8px;">
+          <div class="diagnosis-wrapper">
+            <div class="table-header-fixed"><table class="data-table"><thead><tr><th style="width:24px;"></th><th style="width:60px;">상병코드</th><th>명칭</th><th style="width:40px;">의증</th><th style="width:40px;">배제</th><th style="width:32px;">좌</th><th style="width:32px;">우</th><th style="width:60px;">진료과</th><th style="width:56px;">특정기호</th><th style="width:56px;">상해외인</th><th style="width:40px;">수술</th></tr></thead></table></div>
+            <div class="table-body-scroll"><table class="data-table"><tbody id="diagnosisBody-c"></tbody></table><div style="min-height:20px;"></div></div>
+            <div style="border-top:1px solid #E5E7EB; padding:6px 8px; display:flex; align-items:center; gap:8px; background:#fff;"><label style="font-size:11px; color:#6B7280; white-space:nowrap;">상병 검색</label><input type="text" style="height:24px; padding:2px 8px; border:1px solid #E5E7EB; border-radius:4px; font-size:11px; width:200px; outline:none; font-family:inherit;" placeholder="상병 검색"></div>
+          </div>
+        </div>
+        <div class="popup-section-grow" style="margin-bottom:8px;">
+          <div class="section-table flex-1">
+            <div class="table-header-fixed"><table class="data-table"><thead><tr><th style="width:24px;"></th><th style="width:50px;">사용코드</th><th>명칭</th><th style="width:40px;">용량</th><th style="width:36px;">일투</th><th style="width:36px;">일수</th><th style="width:36px;">용법</th><th style="width:50px;">특정내역</th><th style="width:32px;">청구</th><th style="width:56px;">수납방법</th><th style="width:36px;">검체</th><th style="width:40px;">단가</th><th style="width:36px;">단위</th><th style="width:70px;">청구코드</th><th style="width:36px;">예외</th><th style="width:36px;">원내</th><th style="width:36px;">가루</th></tr></thead></table></div>
+            <div class="table-body-scroll"><table class="data-table"><tbody id="popupRxBody-c"></tbody></table></div>
+          </div>
+        </div>
+        <div class="popup-bottom">
+          <div class="bottom-card"><div class="bottom-card-header">증상</div><div class="bottom-card-body"><textarea class="textarea-field" rows="2" placeholder="('/'입력하여 상용구 검색)"></textarea><div class="tag-row" style="margin-top:8px;"><span class="tag-small">_event</span></div></div></div>
+          <div class="bottom-card"><div class="bottom-card-header">특정내역(MX999)<span class="spacer"></span><span class="counter">0/700 bytes</span></div><div class="bottom-card-body"><textarea class="textarea-field" rows="2" placeholder="특정내역(MX999)을 입력해주세요."></textarea><div class="tag-row" style="margin-top:8px;"><span class="tag-small">_event</span></div></div></div>
+        </div>
+        <div class="popup-footer"><button class="btn-secondary" onclick="closePopup('c')">취소</button><button class="btn-save" onclick="alert('C안 저장되었습니다.'); closePopup('c');">저장</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- A안 사전팝업: 모든 묶음 풀어서 개별 항목으로 -->
+<div class="choice-overlay" id="choiceOverlay-a" onclick="closeChoicePopup()">
+  <div class="choice-popup" onclick="event.stopPropagation()">
+    <div class="choice-popup-header">
+      <h3>묶음처방 안내</h3>
+      <p>현재 묶음의 구성 항목이 개별적으로 등록됩니다.</p>
+    </div>
+    <div class="choice-popup-body">
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:10px;">현재 상태</div>
+        <svg width="170" height="190" viewBox="0 0 170 190">
+          <rect x="8" y="8" width="154" height="24" rx="5" fill="#7C3AED"/>
+          <text x="22" y="24" font-size="11" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <text x="16" y="52" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="40" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="72" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="60" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="92" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="80" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="116" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="104" width="132" height="22" rx="5" fill="#A78BFA"/>
+          <text x="42" y="119" font-size="10" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <text x="38" y="144" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="52" y="132" width="110" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="38" y="164" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="52" y="152" width="110" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="38" y="184" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="52" y="172" width="110" height="14" rx="4" fill="#DDD6FE"/>
+        </svg>
+      </div>
+      <div style="display:flex; align-items:center; padding:0 8px;">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <path d="M10 24 L34 24" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M29 17 L36 24 L29 31" stroke="#7C3AED" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:10px;">등록 시 표시</div>
+        <svg width="170" height="190" viewBox="0 0 170 190">
+          <rect x="8" y="8" width="154" height="16" rx="4" fill="#E5E7EB"/>
+          <rect x="8" y="30" width="154" height="16" rx="4" fill="#E5E7EB"/>
+          <rect x="8" y="52" width="154" height="16" rx="4" fill="#E5E7EB"/>
+          <rect x="8" y="74" width="154" height="16" rx="4" fill="#DDD6FE"/>
+          <rect x="8" y="96" width="154" height="16" rx="4" fill="#DDD6FE"/>
+          <rect x="8" y="118" width="154" height="16" rx="4" fill="#DDD6FE"/>
+          <circle cx="75" cy="148" r="2" fill="#9CA3AF"/>
+          <circle cx="85" cy="148" r="2" fill="#9CA3AF"/>
+          <circle cx="95" cy="148" r="2" fill="#9CA3AF"/>
+        </svg>
+      </div>
+    </div>
+    <div class="choice-popup-footer" style="gap:12px; display:flex; justify-content:center; padding:12px 24px 20px;">
+      <button class="btn-text-cancel" onclick="closeChoicePopup()">취소</button>
+      <button class="btn-primary" style="padding:8px 24px; font-size:13px;" onclick="selectChoiceAndOpen()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- B안 사전팝업: 하위 묶음을 같은 레벨로 분리 -->
+<div class="choice-overlay" id="choiceOverlay-b" onclick="closeChoicePopup()">
+  <div class="choice-popup" onclick="event.stopPropagation()">
+    <div class="choice-popup-header">
+      <h3>묶음처방 안내</h3>
+      <p>현재 묶음의 구성 항목이 묶음 단위로 분리되어 등록됩니다.</p>
+    </div>
+    <div class="choice-popup-body">
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:10px;">현재 상태</div>
+        <svg width="170" height="190" viewBox="0 0 170 190">
+          <!-- 상위 묶음줄 (색상1: 진한보라) - 크고 넓게 -->
+          <rect x="4" y="4" width="162" height="28" rx="6" fill="#7C3AED"/>
+          <text x="18" y="23" font-size="12" font-weight="700" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <!-- 하위 항목 (색상2: 회색) -->
+          <text x="14" y="52" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="28" y="40" width="134" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="14" y="72" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="28" y="60" width="134" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="14" y="92" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="28" y="80" width="134" height="14" rx="4" fill="#E5E7EB"/>
+          <!-- 하위 묶음줄 (색상3: 연보라) - 작고 좁게, 깊은 들여쓰기 -->
+          <text x="36" y="114" font-size="9" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="48" y="102" width="100" height="18" rx="4" fill="#A78BFA"/>
+          <text x="58" y="115" font-size="9" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <!-- 하위 묶음의 항목 (색상4: 연보라 밝은) - 더 깊은 들여쓰기 -->
+          <text x="56" y="138" font-size="9" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="68" y="126" width="80" height="12" rx="3" fill="#DDD6FE"/>
+          <text x="56" y="156" font-size="9" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="68" y="144" width="80" height="12" rx="3" fill="#DDD6FE"/>
+          <text x="56" y="174" font-size="9" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="68" y="162" width="80" height="12" rx="3" fill="#DDD6FE"/>
+        </svg>
+      </div>
+      <div style="display:flex; align-items:center; padding:0 8px;">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <path d="M10 24 L34 24" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M29 17 L36 24 L29 31" stroke="#7C3AED" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:10px;">등록 시 표시</div>
+        <svg width="170" height="190" viewBox="0 0 170 190">
+          <!-- 묶음줄 (색상1: 진한보라 = 같은 위계) -->
+          <rect x="8" y="8" width="154" height="22" rx="5" fill="#7C3AED"/>
+          <text x="22" y="23" font-size="10" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <!-- 하위 항목 (색상2: 회색 = 출신 유지) -->
+          <text x="16" y="50" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="38" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="70" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="58" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="90" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="78" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <!-- 묶음줄 (색상1: 진한보라 = 같은 위계) -->
+          <rect x="8" y="104" width="154" height="22" rx="5" fill="#7C3AED"/>
+          <text x="22" y="119" font-size="10" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <!-- 하위 항목 (색상4: 연보라 밝은 = 출신 유지) -->
+          <text x="16" y="146" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="134" width="132" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="16" y="166" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="154" width="132" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="16" y="186" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="174" width="132" height="14" rx="4" fill="#DDD6FE"/>
+        </svg>
+      </div>
+    </div>
+    <div class="choice-popup-footer" style="gap:12px; display:flex; justify-content:center; padding:12px 24px 20px;">
+      <button class="btn-text-cancel" onclick="closeChoicePopup()">취소</button>
+      <button class="btn-primary" style="padding:8px 24px; font-size:13px;" onclick="selectChoiceAndOpen()">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- C안 사전팝업: 하위 묶음 풀어서 상위 묶음에 합침 -->
+<div class="choice-overlay" id="choiceOverlay-c" onclick="closeChoicePopup()">
+  <div class="choice-popup" onclick="event.stopPropagation()">
+    <div class="choice-popup-header">
+      <h3>묶음처방 안내</h3>
+      <p>하위 묶음이 해제되어 상위 묶음에 합쳐져 등록됩니다.</p>
+    </div>
+    <div class="choice-popup-body">
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:10px;">현재 상태</div>
+        <svg width="170" height="190" viewBox="0 0 170 190">
+          <!-- 상위 묶음줄 (색상1: 진한보라) -->
+          <rect x="8" y="8" width="154" height="24" rx="5" fill="#7C3AED"/>
+          <text x="22" y="24" font-size="11" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <!-- 하위 항목 (색상2: 회색) -->
+          <text x="16" y="52" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="40" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="72" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="60" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="92" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="80" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <!-- 하위 묶음줄 (색상3: 연보라) -->
+          <text x="16" y="116" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="104" width="132" height="22" rx="5" fill="#A78BFA"/>
+          <text x="42" y="119" font-size="10" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <!-- 하위 묶음의 항목 (색상4: 연보라 밝은) -->
+          <text x="38" y="144" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="52" y="132" width="110" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="38" y="164" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="52" y="152" width="110" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="38" y="184" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="52" y="172" width="110" height="14" rx="4" fill="#DDD6FE"/>
+        </svg>
+      </div>
+      <div style="display:flex; align-items:center; padding:0 8px;">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <path d="M10 24 L34 24" stroke="#7C3AED" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M29 17 L36 24 L29 31" stroke="#7C3AED" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+        <div style="font-size:11px; font-weight:600; color:#6B7280; margin-bottom:10px;">등록 시 표시</div>
+        <svg width="170" height="190" viewBox="0 0 170 190">
+          <!-- 묶음줄 (색상1: 진한보라) - 상위 묶음 유지 -->
+          <rect x="8" y="8" width="154" height="24" rx="5" fill="#7C3AED"/>
+          <text x="22" y="24" font-size="11" font-weight="600" fill="#fff" font-family="Inter, sans-serif">묶음</text>
+          <!-- 기존 하위 항목 (색상2: 회색) -->
+          <text x="16" y="52" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="40" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="72" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="60" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <text x="16" y="92" font-size="10" fill="#9CA3AF" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="80" width="132" height="14" rx="4" fill="#E5E7EB"/>
+          <!-- 하위 묶음에서 풀려 올라온 항목들 (색상4: 연보라) - 같은 들여쓰기 -->
+          <text x="16" y="112" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="100" width="132" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="16" y="132" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="120" width="132" height="14" rx="4" fill="#DDD6FE"/>
+          <text x="16" y="152" font-size="10" fill="#C4B5FD" font-family="Inter, sans-serif">&#8735;</text>
+          <rect x="30" y="140" width="132" height="14" rx="4" fill="#DDD6FE"/>
+        </svg>
+      </div>
+    </div>
+    <div class="choice-popup-footer" style="gap:12px; display:flex; justify-content:center; padding:12px 24px 20px;">
+      <button class="btn-text-cancel" onclick="closeChoicePopup()">취소</button>
+      <button class="btn-primary" style="padding:8px 24px; font-size:13px;" onclick="selectChoiceAndOpen()">확인</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end page-wrapper -->
+
+<script>
+var currentVariant = 'a';
+var pendingChoiceVariant = null;
+
+function openChoicePopup(variant) {
+  pendingChoiceVariant = variant;
+  var overlayId = 'choiceOverlay-' + variant;
+  var el = document.getElementById(overlayId);
+  if (el) el.classList.add('active');
+}
+
+function closeChoicePopup() {
+  document.querySelectorAll('.choice-overlay').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  pendingChoiceVariant = null;
+}
+
+function selectChoiceAndOpen() {
+  var v = pendingChoiceVariant;
+  closeChoicePopup();
+  if (v) {
+    openPopup(v);
+  }
+}
+
+function copyRxToPanel(variant) {
+  var mainTbody = document.querySelector('#mainRxTable-' + variant + ' tbody');
+  var popupTbody = document.getElementById('popupRxBody-' + variant);
+  if (!mainTbody || !popupTbody) return;
+  popupTbody.innerHTML = '';
+  var rows = mainTbody.querySelectorAll('tr');
+  rows.forEach(function(row) {
+    // A안: 묶음 구조를 모두 풀어서 개별 항목만 flat하게 표시
+    if (variant === 'a') {
+      // bundle-group-row(고당고추가, ua10 등)는 건너뛰기
+      if (row.classList.contains('bundle-group-row') || row.classList.contains('sub-group')) return;
+      var cloned = row.cloneNode(true);
+      // 묶음 하위 항목 클래스/스타일 제거 → 일반 항목처럼 보이게
+      cloned.classList.remove('bundle-child-row', 'level-1', 'level-2', 'last-child', 'hidden');
+      cloned.removeAttribute('data-parent');
+      // tree-line 제거
+      var treeLines = cloned.querySelectorAll('.tree-line');
+      treeLines.forEach(function(tl) { tl.remove(); });
+      // child 아이콘을 일반 아이콘으로 변경
+      var childIcons = cloned.querySelectorAll('.tri-icon.child');
+      childIcons.forEach(function(ic) { ic.classList.remove('child'); });
+      // first-child td padding 초기화
+      var firstTd = cloned.querySelector('td:first-child');
+      if (firstTd) firstTd.style.paddingLeft = '';
+      var extraCols = 5;
+      for (var i = 0; i < extraCols; i++) {
+        var td = document.createElement('td');
+        cloned.appendChild(td);
+      }
+      popupTbody.appendChild(cloned);
+    } else if (variant === 'b') {
+      // B안: 요일반검사10종을 고당고추가와 같은 레벨로 올림
+      // bun(개별) + 고당고추가(묶음, 하위에 hb~cr만) + 요일반검사10종(묶음, 하위에 urin~um)
+      // sub-group(ua10) 행은 건너뛰기 — 별도 top-level 묶음으로 재구성
+      if (row.classList.contains('sub-group')) return;
+      // level-2(ua10 하위) 항목도 건너뛰기 — 별도로 추가할 예정
+      if (row.classList.contains('level-2')) return;
+      var cloned = row.cloneNode(true);
+      if (cloned.classList.contains('bundle-group-row')) {
+        cloned.setAttribute('onclick', 'toggleBundleGroup(this)');
+      }
+      var extraCols = 5;
+      for (var i = 0; i < extraCols; i++) {
+        var td = document.createElement('td');
+        cloned.appendChild(td);
+      }
+      popupTbody.appendChild(cloned);
+    } else {
+      // C안: 고당고 추가 묶음은 유지, 하위 sub-group(요 일반검사 10종)만 풀어서 개별 항목으로
+      // sub-group 행(ua10) 자체는 건너뛰기
+      if (row.classList.contains('sub-group')) return;
+      var cloned = row.cloneNode(true);
+      if (cloned.classList.contains('bundle-group-row')) {
+        cloned.setAttribute('onclick', 'toggleBundleGroup(this)');
+      }
+      // level-2 항목을 level-1로 올려서 고당고 직속 자식처럼 보이게
+      if (cloned.classList.contains('level-2')) {
+        cloned.classList.remove('level-2');
+        cloned.classList.add('level-1');
+        cloned.setAttribute('data-parent', 'godanggo');
+        // tree-line 위치를 level-1로 맞추기
+        var firstTd = cloned.querySelector('td:first-child');
+        if (firstTd) firstTd.style.paddingLeft = '';
+      }
+      // 마지막 level-2 last-child 처리 제거 (나중에 마지막 항목에 다시 붙임)
+      cloned.classList.remove('last-child');
+      var extraCols = 5;
+      for (var i = 0; i < extraCols; i++) {
+        var td = document.createElement('td');
+        cloned.appendChild(td);
+      }
+      popupTbody.appendChild(cloned);
+    }
+  });
+  // B안: 고당고 하위 마지막 항목에 last-child 처리 + 요일반검사10종을 별도 top-level 묶음으로 추가
+  if (variant === 'b') {
+    // 고당고 하위 마지막 child-row에 last-child 붙이기
+    var godanggoChildren = popupTbody.querySelectorAll('.bundle-child-row.level-1');
+    if (godanggoChildren.length > 0) {
+      var lastGodanggo = godanggoChildren[godanggoChildren.length - 1];
+      lastGodanggo.classList.add('last-child');
+      var tl = lastGodanggo.querySelector('.tree-line');
+      if (tl) { tl.classList.remove('mid'); tl.classList.add('last'); }
+    }
+    // 요 일반검사 10종을 top-level bundle-group-row로 추가
+    var ua10GroupRow = document.createElement('tr');
+    ua10GroupRow.className = 'bundle-group-row';
+    ua10GroupRow.setAttribute('onclick', 'toggleBundleGroup(this)');
+    ua10GroupRow.setAttribute('data-level', '0');
+    var cols = '<td class="rx-icon"><span class="bundle-toggle-icon expanded">&#9660;</span></td><td>ua10</td><td style="font-weight:600; color:#7C3AED;">요 일반검사 10종</td>';
+    for (var c = 0; c < 9 + 5; c++) cols += '<td></td>';
+    ua10GroupRow.innerHTML = cols;
+    popupTbody.appendChild(ua10GroupRow);
+    // 원본 tbody에서 level-2 항목(ua10 하위)을 가져와서 level-1로 추가
+    var mainTbody = document.querySelector('#mainRxTable-b tbody');
+    var origLevel2 = mainTbody.querySelectorAll('.bundle-child-row.level-2');
+    origLevel2.forEach(function(row, idx) {
+      var cloned = row.cloneNode(true);
+      cloned.classList.remove('level-2');
+      cloned.classList.add('level-1');
+      cloned.removeAttribute('data-parent');
+      cloned.setAttribute('data-parent', 'ua10-top');
+      var firstTd = cloned.querySelector('td:first-child');
+      if (firstTd) firstTd.style.paddingLeft = '';
+      // last-child 처리
+      if (idx === origLevel2.length - 1) {
+        cloned.classList.add('last-child');
+        var treeLine = cloned.querySelector('.tree-line');
+        if (treeLine) { treeLine.classList.remove('mid'); treeLine.classList.add('last'); }
+      } else {
+        cloned.classList.remove('last-child');
+      }
+      var extraCols = 5;
+      for (var i = 0; i < extraCols; i++) {
+        var td = document.createElement('td');
+        cloned.appendChild(td);
+      }
+      popupTbody.appendChild(cloned);
+    });
+  }
+  // C안: 마지막 bundle-child-row에 last-child 클래스 + tree-line last 처리
+  if (variant === 'c') {
+    var childRows = popupTbody.querySelectorAll('.bundle-child-row.level-1');
+    if (childRows.length > 0) {
+      var lastRow = childRows[childRows.length - 1];
+      lastRow.classList.add('last-child');
+      var treeLine = lastRow.querySelector('.tree-line');
+      if (treeLine) { treeLine.classList.remove('mid'); treeLine.classList.add('last'); }
+    }
+  }
+}
+
+function openPopup(variant) {
+  copyRxToPanel(variant);
+  document.getElementById('popupOverlay-' + variant).classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closePopup(variant) {
+  document.getElementById('popupOverlay-' + variant).classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function closePopupOutside(e, variant) {
+  if (e.target === e.currentTarget) closePopup(variant);
+}
+
+function switchVariant(variant) {
+  // Close any open popups first
+  ['a','b','c'].forEach(function(v) {
+    var overlay = document.getElementById('popupOverlay-' + v);
+    if (overlay) overlay.classList.remove('active');
+    var tab = document.getElementById('abtab-' + v);
+    var panel = document.getElementById('variant-' + v);
+    tab.className = 'abtest-tab';
+    panel.classList.remove('active');
+  });
+  document.getElementById('abtab-' + variant).classList.add('active-' + variant);
+  document.getElementById('variant-' + variant).classList.add('active');
+  document.body.style.overflow = '';
+  currentVariant = variant;
+}
+
+// ESC key to close popup of current variant
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePopup(currentVariant);
+});
+
+// Bundle list item selection
+function selectBundleItem(el) {
+  var list = el.closest('.bp-list');
+  list.querySelectorAll('.bp-item').forEach(function(item) { item.classList.remove('selected'); });
+  el.classList.add('selected');
+}
+
+// Bundle group toggle (supports nested bundles)
+function toggleBundleGroup(groupRow) {
+  event.stopPropagation();
+  var icon = groupRow.querySelector(':scope > td .bundle-toggle-icon');
+  var isExpanded = icon.classList.contains('expanded');
+  var groupLevel = parseInt(groupRow.getAttribute('data-level') || '0');
+  var next = groupRow.nextElementSibling;
+  while (next && next.classList.contains('bundle-child-row')) {
+    var nextLevel = -1;
+    if (next.classList.contains('level-1')) nextLevel = 1;
+    else if (next.classList.contains('level-2')) nextLevel = 2;
+    // Only toggle rows that belong to this group (level > groupLevel)
+    if (nextLevel <= groupLevel) break;
+    if (isExpanded) {
+      next.classList.add('hidden');
+    } else {
+      // When expanding, only show direct children (groupLevel + 1)
+      // Sub-group children stay hidden if their sub-group is collapsed
+      if (nextLevel === groupLevel + 1) {
+        next.classList.remove('hidden');
+      } else if (nextLevel === groupLevel + 2) {
+        // Check if the parent sub-group is expanded
+        var prev = next.previousElementSibling;
+        while (prev && !prev.classList.contains('sub-group')) {
+          if (prev.classList.contains('bundle-group-row') && !prev.classList.contains('bundle-child-row')) break;
+          prev = prev.previousElementSibling;
+        }
+        if (prev && prev.classList.contains('sub-group')) {
+          var subIcon = prev.querySelector('.bundle-toggle-icon');
+          if (subIcon && subIcon.classList.contains('expanded')) {
+            next.classList.remove('hidden');
+          }
+        }
+      }
+    }
+    next = next.nextElementSibling;
+  }
+  if (isExpanded) {
+    icon.classList.remove('expanded');
+    icon.classList.add('collapsed');
+  } else {
+    icon.classList.remove('collapsed');
+    icon.classList.add('expanded');
+  }
+}
+
+// Tab switching (진료/처방/검사/서식)
+document.querySelectorAll('.tab').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    this.parentElement.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+    this.classList.add('active');
+  });
+});
+
+// Visit item click
+document.querySelectorAll('.visit-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    this.closest('.card-body').querySelectorAll('.visit-item').forEach(function(i) { i.classList.remove('selected'); });
+    this.classList.add('selected');
+  });
+});
+</script>
+
+</body>
+</html>
