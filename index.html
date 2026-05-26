@@ -548,6 +548,207 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
   background: #FEF3C7; color: #92400E;
   border-radius: 3px; font-size: 9px; font-weight: 600;
 }
+
+/* === B안: 위젯형 요약 카드 === */
+.widget-host-card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+.widget-host-card .card-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.widget-host-card .ai-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 6px; border-radius: 3px;
+  background: linear-gradient(90deg, #EDE9FE 0%, #DBEAFE 100%);
+  color: #6D28D9; font-size: 10px; font-weight: 600;
+}
+.widget-host-card .ai-badge svg { color: #8B5CF6; }
+.widget-host-card .card-body {
+  padding: 6px; display: flex; flex-direction: column; gap: 6px;
+  overflow-y: auto;
+}
+.widget-mgmt-btn {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; background: #F3E8FF; color: #6D28D9;
+  border: 1px solid #DDD6FE; border-radius: 4px;
+  font-size: 10px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.widget-mgmt-btn:hover { background: #E9D5FF; }
+.w-card {
+  border: 1px solid #E5E7EB; border-radius: 6px; background: #fff;
+  overflow: hidden;
+}
+.w-card-header {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-bottom: 1px solid #F3F4F6;
+  background: #FAFAFA;
+}
+.w-card.ai-widget .w-card-header { background: linear-gradient(90deg, #FAF5FF 0%, #FAFAFA 100%); }
+.w-card-icon { color: #6B7280; flex-shrink: 0; display: inline-flex; }
+.w-card.ai-widget .w-card-icon { color: #8B5CF6; }
+.w-card-title { font-size: 11px; font-weight: 600; color: #111827; flex: 1; }
+.w-card.ai-widget .w-card-title { color: #6D28D9; }
+.w-mini-tag {
+  padding: 0 4px; height: 14px; line-height: 13px;
+  background: #F5F3FF; color: #7C3AED;
+  border: 1px solid #DDD6FE; border-radius: 3px;
+  font-size: 9px; font-weight: 700;
+}
+.w-card-action {
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: none; background: none; color: #9CA3AF;
+  border-radius: 3px; cursor: pointer;
+}
+.w-card-action:hover { background: #F3F4F6; color: #374151; }
+.w-card-action.active { background: #F3E8FF; color: #7C3AED; }
+.w-card-body { padding: 6px 10px 8px; }
+
+.w-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.w-chip {
+  display: inline-flex; align-items: baseline; gap: 3px;
+  padding: 2px 8px; background: #F3F4F6; border-radius: 12px;
+  font-size: 10.5px; color: #374151; cursor: pointer;
+  border: 1px solid transparent;
+}
+.w-chip:hover { background: #E5E7EB; }
+.w-chip.active { background: #EDE9FE; color: #6D28D9; border-color: #C4B5FD; }
+.w-chip-name { color: #111827; font-weight: 500; }
+.w-chip.active .w-chip-name { color: #6D28D9; }
+.w-chip-meta { color: #6B7280; font-size: 9.5px; }
+.w-chip.missed .w-chip-name { color: #9CA3AF; }
+.w-chip.missed .w-chip-meta { color: #DC2626; font-weight: 500; }
+
+.w-row {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 3px 4px; font-size: 11px; color: #374151;
+  cursor: pointer; line-height: 1.4; border-radius: 3px;
+}
+.w-row:hover { background: #F9FAFB; }
+.w-row.active { background: #F3E8FF; }
+.w-row-key {
+  color: #111827; font-weight: 600; min-width: 56px;
+  font-variant-numeric: tabular-nums; font-size: 10.5px;
+}
+.w-row-name { color: #111827; font-weight: 500; flex: 1; }
+.w-row-trend {
+  color: #4B5563; font-size: 10.5px;
+  font-variant-numeric: tabular-nums; flex: 1;
+}
+.w-row-meta { color: #9CA3AF; font-size: 9.5px; }
+.w-row.ai-row .w-row-name { color: #6D28D9; }
+
+.w-arrow-down { color: #059669; font-weight: 700; }
+.w-arrow-up { color: #DC2626; font-weight: 700; }
+.w-arrow-flat { color: #6B7280; font-weight: 700; }
+
+.w-empty { padding: 4px 0; font-size: 10.5px; color: #9CA3AF; font-style: italic; }
+
+.w-detail {
+  margin-top: 6px; padding: 6px 8px;
+  background: #FAFAFA; border-radius: 4px;
+  border-left: 2px solid #C4B5FD;
+  font-size: 10.5px; color: #4B5563; line-height: 1.55;
+}
+.w-detail.hidden { display: none; }
+.w-detail-row { display: flex; justify-content: space-between; padding: 1px 0; gap: 8px; }
+.w-detail-row > span:first-child { color: #6B7280; flex-shrink: 0; }
+.w-detail-row > span:last-child { color: #111827; text-align: right; }
+.w-detail-quote {
+  margin-bottom: 4px; padding: 4px 6px;
+  background: #fff; border: 1px solid #E5E7EB; border-radius: 3px;
+  font-size: 10px; color: #374151; line-height: 1.45;
+}
+.w-detail-confidence { color: #6D28D9; font-weight: 600; }
+
+.w-settings-panel {
+  padding: 8px 10px; background: #FAF5FF;
+  border-bottom: 1px solid #E5E7EB;
+}
+.w-settings-panel.hidden { display: none; }
+.w-settings-title {
+  font-size: 9.5px; font-weight: 700; color: #6B7280;
+  margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em;
+}
+.w-settings-options { display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.w-settings-option {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; color: #374151; cursor: pointer; user-select: none;
+}
+.w-settings-option input[type="checkbox"] {
+  width: 12px; height: 12px; accent-color: #7C3AED; cursor: pointer;
+}
+.w-settings-actions {
+  display: flex; gap: 6px; margin-top: 8px; justify-content: flex-end;
+}
+.w-settings-btn {
+  padding: 3px 10px; font-size: 10px; font-weight: 500;
+  border: 1px solid #E5E7EB; background: #fff; color: #374151;
+  border-radius: 4px; cursor: pointer; font-family: inherit;
+}
+.w-settings-btn:hover { background: #F3F4F6; }
+.w-settings-btn.primary { background: #7C3AED; color: #fff; border-color: #7C3AED; }
+.w-settings-btn.primary:hover { background: #6D28D9; }
+.w-settings-input {
+  width: 44px; padding: 2px 6px; border: 1px solid #E5E7EB;
+  border-radius: 3px; font-size: 10.5px; font-family: inherit;
+  text-align: center;
+}
+
+/* Widget management popover */
+.w-mgmt-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(0,0,0,0.45); z-index: 900;
+  justify-content: center; align-items: center;
+}
+.w-mgmt-overlay.active { display: flex; }
+.w-mgmt-popup {
+  background: #fff; border-radius: 8px; border: 1px solid #E5E7EB;
+  width: 360px; box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+  animation: popupIn 0.18s ease-out; overflow: hidden;
+}
+.w-mgmt-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 16px; border-bottom: 1px solid #E5E7EB;
+}
+.w-mgmt-header h4 { font-size: 13px; font-weight: 700; color: #111827; }
+.w-mgmt-header .w-mgmt-sub { flex: 1; font-size: 10px; color: #9CA3AF; }
+.w-mgmt-close {
+  width: 22px; height: 22px; background: none; border: none; color: #6B7280;
+  cursor: pointer; font-size: 16px; border-radius: 4px;
+}
+.w-mgmt-close:hover { background: #F3F4F6; }
+.w-mgmt-list { padding: 6px 8px; }
+.w-mgmt-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 8px; border-radius: 4px;
+  font-size: 12px; color: #374151;
+}
+.w-mgmt-row:hover { background: #F9FAFB; }
+.w-mgmt-row.off .w-mgmt-name { color: #9CA3AF; text-decoration: line-through; }
+.w-mgmt-handle { color: #D1D5DB; font-size: 12px; line-height: 1; cursor: grab; }
+.w-mgmt-name { flex: 1; }
+.w-mgmt-reorder { display: flex; gap: 2px; }
+.w-mgmt-reorder button {
+  width: 20px; height: 20px; border: 1px solid #E5E7EB;
+  background: #fff; color: #6B7280; border-radius: 3px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 10px;
+  font-family: inherit;
+}
+.w-mgmt-reorder button:hover:not(:disabled) { background: #F3F4F6; color: #111827; }
+.w-mgmt-reorder button:disabled { opacity: 0.4; cursor: not-allowed; }
+.w-mgmt-toggle {
+  position: relative; width: 28px; height: 16px; background: #E5E7EB;
+  border-radius: 8px; cursor: pointer; flex-shrink: 0; transition: background 0.15s;
+}
+.w-mgmt-toggle.on { background: #7C3AED; }
+.w-mgmt-toggle::after {
+  content: ''; position: absolute; top: 2px; left: 2px;
+  width: 12px; height: 12px; background: #fff; border-radius: 50%;
+  transition: left 0.15s;
+}
+.w-mgmt-toggle.on::after { left: 14px; }
+.w-mgmt-footer {
+  padding: 10px 16px; background: #F9FAFB;
+  border-top: 1px solid #E5E7EB;
+  display: flex; justify-content: flex-end; gap: 8px;
+}
 </style>
 </head>
 <body>
@@ -824,27 +1025,19 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
   <div class="content-area">
     <!-- Column 1 -->
     <div class="column column-1">
-      <div class="card patient-summary">
-        <div class="card-header">환자 진료이력 요약</div>
-        <div class="card-body">
-          <div class="summary-row"><span class="summary-label">주요 상병</span><span class="summary-value">본태성 고혈압, 2형 당뇨병</span></div>
-          <div class="summary-row"><span class="summary-label">알레르기</span><span class="summary-value" style="color:#EF4444;">페니실린, 아스피린</span></div>
-          <div class="summary-row"><span class="summary-label">최근 내원</span><span class="summary-value">2026-02-15 (내과)</span></div>
-          <div class="summary-row"><span class="summary-label">투약중</span><span class="summary-value">아모잘탄정, 메트포르민</span></div>
-          <div class="summary-row"><span class="summary-label">특이사항</span><span class="summary-value">-</span></div>
+      <div class="card widget-host-card" id="widgetHost-b">
+        <div class="card-header">
+          <span>환자 진료이력 요약</span>
+          <span class="ai-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
+            AI 자동요약
+          </span>
+          <button class="widget-mgmt-btn" onclick="openWidgetMgmt()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            위젯 관리
+          </button>
         </div>
-      </div>
-      <div class="card flex-1">
-        <div class="card-header">내원이력</div>
-        <div class="card-body">
-          <div class="visit-item selected"><span class="visit-date">2026-03-06</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
-          <div class="visit-item"><span class="visit-date">2026-02-15</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
-          <div class="visit-item"><span class="visit-date">2026-01-20</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
-          <div class="visit-item"><span class="visit-date">2025-12-10</span><span class="visit-dept">피부과</span><span class="visit-doctor">이민수</span></div>
-          <div class="visit-item"><span class="visit-date">2025-11-05</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
-          <div class="visit-item"><span class="visit-date">2025-10-01</span><span class="visit-dept">내과</span><span class="visit-doctor">카야</span></div>
-          <div class="visit-item"><span class="visit-date">2025-09-08</span><span class="visit-dept">정형외과</span><span class="visit-doctor">박정호</span></div>
-        </div>
+        <div class="card-body" id="widgetGrid-b"></div>
       </div>
     </div>
     <!-- Column 2 -->
@@ -1027,6 +1220,21 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
           <div class="bottom-card"><div class="bottom-card-header">특정내역(MX999)<span class="spacer"></span><span class="counter">0/700 bytes</span></div><div class="bottom-card-body"><textarea class="textarea-field" rows="2" placeholder="특정내역(MX999)을 입력해주세요."></textarea><div class="tag-row" style="margin-top:8px;"><span class="tag-small">_event</span></div></div></div>
         </div>
         <div class="popup-footer"><button class="btn-secondary" onclick="closePopup('b')">취소</button><button class="btn-save" onclick="alert('B안 저장되었습니다.'); closePopup('b');">저장</button></div>
+      </div>
+    </div>
+  </div>
+  <!-- 위젯 관리 팝오버 -->
+  <div class="w-mgmt-overlay" id="widgetMgmtOverlay" onclick="if(event.target===this)closeWidgetMgmt()">
+    <div class="w-mgmt-popup">
+      <div class="w-mgmt-header">
+        <h4>위젯 관리</h4>
+        <span class="w-mgmt-sub">표시할 위젯 / 순서</span>
+        <button class="w-mgmt-close" onclick="closeWidgetMgmt()">&times;</button>
+      </div>
+      <div class="w-mgmt-list" id="widgetMgmtList"></div>
+      <div class="w-mgmt-footer">
+        <button class="w-settings-btn" onclick="closeWidgetMgmt()">취소</button>
+        <button class="w-settings-btn primary" onclick="applyWidgetMgmt()">적용</button>
       </div>
     </div>
   </div>
@@ -1843,6 +2051,442 @@ function switchScenarioA(sid) {
 }
 
 renderAiSummaryA(1);
+
+/* ===== B안: 위젯형 요약 카드 ===== */
+var WIDGETS_B_CONFIG = [
+  { id:'dx',    title:'자주 온 상병',  on:true, type:'data' },
+  { id:'meds',  title:'장기복용약',    on:true, type:'data' },
+  { id:'obs',   title:'관찰 중',       on:true, type:'ai'   },
+  { id:'vital', title:'Vital',         on:true, type:'data' },
+  { id:'lab',   title:'검사',          on:true, type:'data' },
+  { id:'proc',  title:'처치 / 주사',   on:true, type:'data' },
+  { id:'vac',   title:'예방접종',      on:true, type:'data' }
+];
+
+var PATIENT_B = {
+  dx: {
+    tracked: ['htn','dl','bronch'],
+    available: [
+      { id:'htn',    name:'본태성 고혈압',   meta:'2021년부터',        visits:24, lastVisit:'26.02.15' },
+      { id:'dl',     name:'이상지질혈증',    meta:'2022년부터',        visits:12, lastVisit:'26.02.15' },
+      { id:'bronch', name:'급성기관지염',    meta:'반복 내원 (연 3-4회)', visits:8,  lastVisit:'25.11.20' },
+      { id:'rhin',   name:'알레르기 비염',   meta:'2024년부터',        visits:3,  lastVisit:'25.09.10' },
+      { id:'gerd',   name:'위식도역류병',    meta:'2024년부터',        visits:2,  lastVisit:'25.08.04' }
+    ]
+  },
+  meds: {
+    tracked: ['enal','amlo','atorva'],
+    available: [
+      { id:'enal',   name:'에날라프릴',    dose:'5mg 1T/day',    since:'21년 6월~', history:'5mg 유지' },
+      { id:'amlo',   name:'암로디핀',      dose:'5mg 1T/day',    since:'22년 3월~', history:'5mg 유지' },
+      { id:'atorva', name:'아토르바스타틴', dose:'20mg 1T/day',  since:'23년 4월~', history:'10mg → 20mg 증량 (24.06)' },
+      { id:'asp',    name:'아스피린',      dose:'100mg 1T/day',  since:'23년 4월~', history:'100mg 유지' }
+    ]
+  },
+  obs: {
+    on: true,
+    categories: { sideeffect:true, symptom:true, lifestyle:false },
+    items: [
+      { id:'cough', text:'기침 관찰 중', context:'ACE 억제제 부작용 의심',
+        quote:'"건성 기침 2주째 지속, 가래 없음" — 25.10.12 진료기록',
+        confidence:0.78, category:'sideeffect' }
+    ]
+  },
+  vital: {
+    tracked: ['bp','bw'],
+    available: [
+      { id:'bp',   key:'BP',    latest:'130/80',    dir:'down', series:['145/90','140/88','138/85','135/82','130/80'] },
+      { id:'bw',   key:'BW',    latest:'70.2 kg',   dir:'down', series:['72.4','71.8','71.5','70.9','70.2'] },
+      { id:'hr',   key:'HR',    latest:'72 bpm',    dir:'flat', series:['74','72','73','71','72'] },
+      { id:'spo2', key:'SpO2',  latest:'98%',       dir:'flat', series:['98','98','97','98','98'] },
+      { id:'bt',   key:'BT',    latest:'36.5°C',    dir:'flat', series:['36.5','36.4','36.6','36.5','36.5'] }
+    ]
+  },
+  lab: {
+    tracked: ['cr','egfr','ldl','hdl','tg','liver'],
+    available: [
+      { id:'cr',    key:'Cr',      vals:[1.0,1.1,1.2],          dir:'up',   dates:['23.10','24.04','24.10'], normal:'0.7-1.3 mg/dL' },
+      { id:'egfr',  key:'eGFR',    vals:[78,74,70],             dir:'down', dates:['23.10','24.04','24.10'], normal:'≥60 mL/min/1.73m²' },
+      { id:'ldl',   key:'LDL',     vals:[145,122,108],          dir:'down', dates:['23.10','24.04','24.10'], normal:'<130 mg/dL' },
+      { id:'hdl',   key:'HDL',     vals:[42,45,48],             dir:'up',   dates:['23.10','24.04','24.10'], normal:'>40 mg/dL' },
+      { id:'tg',    key:'TG',      vals:[185,165,142],          dir:'down', dates:['23.10','24.04','24.10'], normal:'<150 mg/dL' },
+      { id:'liver', key:'AST/ALT', vals:['28/32','30/35','31/34'], dir:'flat', dates:['23.10','24.04','24.10'], normal:'<40 / <40 U/L' },
+      { id:'hba1c', key:'HbA1c',   vals:[5.8,5.9,5.7],          dir:'flat', dates:['23.10','24.04','24.10'], normal:'<5.7%' },
+      { id:'tsh',   key:'TSH',     vals:[2.1,2.3,2.5],          dir:'up',   dates:['23.10','24.04','24.10'], normal:'0.4-4.0 µIU/mL' }
+    ]
+  },
+  proc: {
+    showLast: 2,
+    items: [
+      { id:'flu1', text:'인플루엔자 IM',           date:'24.10.08', site:'좌측 삼각근', note:'국가예방접종 사업' },
+      { id:'iv1',  text:'수액 IV (생리식염수 500mL)', date:'24.05.20', site:'우측 정맥',   note:'급성 위장염 동반 탈수' },
+      { id:'inj1', text:'B12 IM',                 date:'24.02.14', site:'우측 삼각근', note:'피로감 호소' }
+    ]
+  },
+  vac: {
+    tracked: ['flu','pneumo','zoster','covid'],
+    available: [
+      { id:'flu',    name:'인플루엔자',  date:'24.10.08', status:'completed' },
+      { id:'pneumo', name:'폐렴구균',    date:'22.06.14', status:'completed' },
+      { id:'zoster', name:'대상포진',    date:null,       status:'missed'    },
+      { id:'covid',  name:'COVID-19',    date:'23.11.20', status:'completed' },
+      { id:'hpv',    name:'HPV',         date:null,       status:'not-applicable' },
+      { id:'tdap',   name:'Tdap',        date:'20.05.10', status:'completed' }
+    ]
+  }
+};
+
+var widgetMgmtDraft = null;
+
+function renderWidgetsB() {
+  var host = document.getElementById('widgetGrid-b');
+  if (!host) return;
+  host.innerHTML = WIDGETS_B_CONFIG.filter(function(w){ return w.on; }).map(renderWidgetB).join('');
+}
+
+function widgetIconB(id) {
+  var icons = {
+    dx:    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8M8 12h8"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>',
+    meds:  '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>',
+    obs:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+    vital: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    lab:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.5L4.7 20.6A1 1 0 0 0 5.6 22h12.8a1 1 0 0 0 .9-1.4L14 9.5V2"/><path d="M8.5 2h7M7 16h10"/></svg>',
+    proc:  '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4-11.5 11.5L7 18l-3 3-1-1 3-3 .5-3.5z"/></svg>',
+    vac:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+  };
+  return icons[id] || '';
+}
+
+function renderWidgetB(w) {
+  var body = '';
+  switch (w.id) {
+    case 'dx':    body = renderWidgetDx(); break;
+    case 'meds':  body = renderWidgetMeds(); break;
+    case 'obs':   body = renderWidgetObs(); break;
+    case 'vital': body = renderWidgetVital(); break;
+    case 'lab':   body = renderWidgetLab(); break;
+    case 'proc':  body = renderWidgetProc(); break;
+    case 'vac':   body = renderWidgetVac(); break;
+  }
+  var isAi = w.type === 'ai';
+  return '<div class="w-card' + (isAi ? ' ai-widget' : '') + '" data-widget="' + w.id + '">' +
+    '<div class="w-card-header">' +
+      '<span class="w-card-icon">' + widgetIconB(w.id) + '</span>' +
+      '<span class="w-card-title">' + w.title + '</span>' +
+      (isAi ? '<span class="w-mini-tag">AI</span>' : '') +
+      '<button class="w-card-action" onclick="toggleWidgetSettings(\'' + w.id + '\', this)" title="위젯 설정">' +
+        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01A1.65 1.65 0 0 0 9 4.6V4.5a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' +
+      '</button>' +
+    '</div>' +
+    renderWidgetSettings(w.id) +
+    '<div class="w-card-body">' + body + '</div>' +
+  '</div>';
+}
+
+function arrowMark(dir) {
+  return dir === 'down' ? '↓' : dir === 'up' ? '↑' : '→';
+}
+function arrowClass(dir) {
+  return dir === 'down' ? 'w-arrow-down' : dir === 'up' ? 'w-arrow-up' : 'w-arrow-flat';
+}
+
+function renderWidgetDx() {
+  var dx = PATIENT_B.dx;
+  var chips = dx.tracked.map(function(tid) {
+    var it = dx.available.find(function(a){ return a.id === tid; });
+    if (!it) return '';
+    return '<span class="w-chip" onclick="showWidgetDetail(\'dx\',\'' + tid + '\', this)">' +
+      '<span class="w-chip-name">' + it.name + '</span>' +
+      '<span class="w-chip-meta">· ' + it.meta + '</span>' +
+    '</span>';
+  }).join('');
+  return '<div class="w-chips">' + (chips || '<div class="w-empty">추적 중인 상병 없음</div>') + '</div>' +
+         '<div class="w-detail hidden" id="detail-dx"></div>';
+}
+
+function renderWidgetMeds() {
+  var meds = PATIENT_B.meds;
+  var rows = meds.tracked.map(function(tid) {
+    var it = meds.available.find(function(a){ return a.id === tid; });
+    if (!it) return '';
+    return '<div class="w-row" onclick="showWidgetDetail(\'meds\',\'' + tid + '\', this)">' +
+      '<span class="w-row-name">' + it.name + ' ' + it.dose + '</span>' +
+      '<span class="w-row-meta">· ' + it.since + '</span>' +
+    '</div>';
+  }).join('');
+  return (rows || '<div class="w-empty">추적 중인 약물 없음</div>') +
+         '<div class="w-detail hidden" id="detail-meds"></div>';
+}
+
+function renderWidgetObs() {
+  var obs = PATIENT_B.obs;
+  if (!obs.on || !obs.items.length) {
+    return '<div class="w-empty">관찰 중인 항목 없음</div>';
+  }
+  var rows = obs.items.filter(function(it) {
+    return obs.categories[it.category];
+  }).map(function(it) {
+    return '<div class="w-row ai-row" onclick="showWidgetDetail(\'obs\',\'' + it.id + '\', this)">' +
+      '<span class="w-row-name">' + it.text + '</span>' +
+      '<span class="w-row-meta">· ' + it.context + '</span>' +
+    '</div>';
+  }).join('');
+  return (rows || '<div class="w-empty">설정된 카테고리에 해당하는 항목 없음</div>') +
+         '<div class="w-detail hidden" id="detail-obs"></div>';
+}
+
+function renderWidgetVital() {
+  var v = PATIENT_B.vital;
+  var rows = v.tracked.map(function(tid) {
+    var it = v.available.find(function(a){ return a.id === tid; });
+    if (!it) return '';
+    return '<div class="w-row" onclick="showWidgetDetail(\'vital\',\'' + tid + '\', this)">' +
+      '<span class="w-row-key">' + it.key + '</span>' +
+      '<span class="w-row-trend">' + it.latest + '</span>' +
+      '<span class="' + arrowClass(it.dir) + '">' + arrowMark(it.dir) + '</span>' +
+    '</div>';
+  }).join('');
+  return (rows || '<div class="w-empty">추적 항목 없음</div>') +
+         '<div class="w-detail hidden" id="detail-vital"></div>';
+}
+
+function renderWidgetLab() {
+  var lab = PATIENT_B.lab;
+  var rows = lab.tracked.map(function(tid) {
+    var it = lab.available.find(function(a){ return a.id === tid; });
+    if (!it) return '';
+    return '<div class="w-row" onclick="showWidgetDetail(\'lab\',\'' + tid + '\', this)">' +
+      '<span class="w-row-key">' + it.key + '</span>' +
+      '<span class="w-row-trend">' + it.vals.join(' → ') + '</span>' +
+      '<span class="' + arrowClass(it.dir) + '">' + arrowMark(it.dir) + '</span>' +
+      '<span class="w-row-meta">(' + it.dates.join(' / ') + ')</span>' +
+    '</div>';
+  }).join('');
+  return (rows || '<div class="w-empty">추적 검사 없음</div>') +
+         '<div class="w-detail hidden" id="detail-lab"></div>';
+}
+
+function renderWidgetProc() {
+  var proc = PATIENT_B.proc;
+  var items = proc.items.slice(0, proc.showLast);
+  var rows = items.map(function(it) {
+    return '<div class="w-row" onclick="showWidgetDetail(\'proc\',\'' + it.id + '\', this)">' +
+      '<span class="w-row-key">' + it.date + '</span>' +
+      '<span class="w-row-trend">' + it.text + '</span>' +
+    '</div>';
+  }).join('');
+  return (rows || '<div class="w-empty">최근 처치 없음</div>') +
+         '<div class="w-detail hidden" id="detail-proc"></div>';
+}
+
+function renderWidgetVac() {
+  var vac = PATIENT_B.vac;
+  var chips = vac.tracked.map(function(tid) {
+    var it = vac.available.find(function(a){ return a.id === tid; });
+    if (!it) return '';
+    var missed = !it.date;
+    return '<span class="w-chip' + (missed ? ' missed' : '') + '" onclick="showWidgetDetail(\'vac\',\'' + tid + '\', this)">' +
+      '<span class="w-chip-name">' + it.name + '</span>' +
+      '<span class="w-chip-meta">' + (it.date || '미접종') + '</span>' +
+    '</span>';
+  }).join('');
+  return '<div class="w-chips">' + (chips || '<div class="w-empty">추적 백신 없음</div>') + '</div>' +
+         '<div class="w-detail hidden" id="detail-vac"></div>';
+}
+
+function showWidgetDetail(widgetId, itemId, sourceEl) {
+  var panel = document.getElementById('detail-' + widgetId);
+  if (!panel) return;
+  var card = sourceEl.closest('.w-card');
+  card.querySelectorAll('.w-row.active, .w-chip.active').forEach(function(e){ e.classList.remove('active'); });
+  if (panel.getAttribute('data-active') === itemId && !panel.classList.contains('hidden')) {
+    panel.classList.add('hidden');
+    panel.setAttribute('data-active', '');
+    return;
+  }
+  sourceEl.classList.add('active');
+  panel.innerHTML = buildDetailHtml(widgetId, itemId);
+  panel.classList.remove('hidden');
+  panel.setAttribute('data-active', itemId);
+}
+
+function buildDetailHtml(widgetId, itemId) {
+  var it;
+  switch (widgetId) {
+    case 'dx':
+      it = PATIENT_B.dx.available.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-row"><span>최초 등록</span><span>' + it.meta + '</span></div>' +
+             '<div class="w-detail-row"><span>최근 진료</span><span>' + it.lastVisit + '</span></div>' +
+             '<div class="w-detail-row"><span>누적 진료</span><span>' + it.visits + '회</span></div>';
+    case 'meds':
+      it = PATIENT_B.meds.available.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-row"><span>용량</span><span>' + it.dose + '</span></div>' +
+             '<div class="w-detail-row"><span>시작</span><span>' + it.since + '</span></div>' +
+             '<div class="w-detail-row"><span>처방 이력</span><span>' + it.history + '</span></div>';
+    case 'obs':
+      it = PATIENT_B.obs.items.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-quote">' + it.quote + '</div>' +
+             '<div class="w-detail-row"><span>카테고리</span><span>' + (it.category === 'sideeffect' ? '부작용' : it.category === 'symptom' ? '증상' : '라이프스타일') + '</span></div>' +
+             '<div class="w-detail-row"><span>AI 신뢰도</span><span class="w-detail-confidence">' + Math.round(it.confidence*100) + '%</span></div>';
+    case 'vital':
+      it = PATIENT_B.vital.available.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-row"><span>최근 5회</span><span style="font-variant-numeric:tabular-nums;">' + it.series.join(' → ') + '</span></div>' +
+             '<div class="w-detail-row"><span>최근 측정</span><span>' + it.latest + '</span></div>';
+    case 'lab':
+      it = PATIENT_B.lab.available.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-row"><span>정상 범위</span><span>' + it.normal + '</span></div>' +
+             '<div class="w-detail-row"><span>측정값</span><span style="font-variant-numeric:tabular-nums;">' + it.vals.join(' → ') + '</span></div>' +
+             '<div class="w-detail-row"><span>시행일</span><span>' + it.dates.join(' / ') + '</span></div>';
+    case 'proc':
+      it = PATIENT_B.proc.items.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-row"><span>시행일</span><span>' + it.date + '</span></div>' +
+             '<div class="w-detail-row"><span>항목</span><span>' + it.text + '</span></div>' +
+             '<div class="w-detail-row"><span>부위</span><span>' + it.site + '</span></div>' +
+             '<div class="w-detail-row"><span>메모</span><span>' + it.note + '</span></div>';
+    case 'vac':
+      it = PATIENT_B.vac.available.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-row"><span>백신</span><span>' + it.name + '</span></div>' +
+             '<div class="w-detail-row"><span>최근 접종</span><span>' + (it.date || '없음') + '</span></div>' +
+             '<div class="w-detail-row"><span>상태</span><span style="' + (it.status === 'missed' ? 'color:#DC2626;font-weight:600;' : '') + '">' +
+               (it.status === 'completed' ? '완료' : it.status === 'missed' ? '미접종' : '해당 없음') + '</span></div>';
+  }
+  return '';
+}
+
+/* 위젯 내부 설정 */
+function renderWidgetSettings(widgetId) {
+  var content = '';
+  switch (widgetId) {
+    case 'dx':
+      content = settingsChecklist('dx', '표시할 상병 선택', PATIENT_B.dx.available, PATIENT_B.dx.tracked, 'name', 'meta');
+      break;
+    case 'meds':
+      content = settingsChecklist('meds', '표시할 약물 선택 (30일+ 자동 매칭)', PATIENT_B.meds.available, PATIENT_B.meds.tracked, 'name', 'dose');
+      break;
+    case 'obs':
+      content = '<div class="w-settings-title">AI 추출 설정</div>' +
+        '<div class="w-settings-options" style="flex-direction:column;align-items:flex-start;gap:4px;">' +
+          '<label class="w-settings-option"><input type="checkbox" data-obs-on ' + (PATIENT_B.obs.on ? 'checked' : '') + '> AI 추출 사용</label>' +
+        '</div>' +
+        '<div class="w-settings-title" style="margin-top:8px;">카테고리</div>' +
+        '<div class="w-settings-options">' +
+          '<label class="w-settings-option"><input type="checkbox" data-obs-cat="sideeffect" ' + (PATIENT_B.obs.categories.sideeffect ? 'checked' : '') + '> 부작용</label>' +
+          '<label class="w-settings-option"><input type="checkbox" data-obs-cat="symptom" ' + (PATIENT_B.obs.categories.symptom ? 'checked' : '') + '> 증상</label>' +
+          '<label class="w-settings-option"><input type="checkbox" data-obs-cat="lifestyle" ' + (PATIENT_B.obs.categories.lifestyle ? 'checked' : '') + '> 라이프스타일</label>' +
+        '</div>';
+      break;
+    case 'vital':
+      content = settingsChecklist('vital', '추적할 Vital 선택', PATIENT_B.vital.available, PATIENT_B.vital.tracked, 'key', null);
+      break;
+    case 'lab':
+      content = settingsChecklist('lab', '추적할 검사 항목 선택', PATIENT_B.lab.available, PATIENT_B.lab.tracked, 'key', null);
+      break;
+    case 'proc':
+      content = '<div class="w-settings-title">표시 건수</div>' +
+        '<label class="w-settings-option">최근 <input type="number" min="1" max="10" value="' + PATIENT_B.proc.showLast + '" class="w-settings-input" data-proc-count> 건 표시</label>';
+      break;
+    case 'vac':
+      content = settingsChecklist('vac', '추적할 백신 선택', PATIENT_B.vac.available, PATIENT_B.vac.tracked, 'name', null);
+      break;
+  }
+  return '<div class="w-settings-panel hidden" id="settings-' + widgetId + '">' + content +
+    '<div class="w-settings-actions">' +
+      '<button class="w-settings-btn" onclick="toggleWidgetSettings(\'' + widgetId + '\')">취소</button>' +
+      '<button class="w-settings-btn primary" onclick="applyWidgetSettings(\'' + widgetId + '\')">적용</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function settingsChecklist(widgetId, title, items, tracked, nameKey, metaKey) {
+  return '<div class="w-settings-title">' + title + '</div>' +
+    '<div class="w-settings-options">' +
+      items.map(function(it) {
+        var checked = tracked.indexOf(it.id) !== -1 ? 'checked' : '';
+        var metaStr = (metaKey && it[metaKey]) ? ' <span style="color:#9CA3AF;font-size:9.5px;">' + it[metaKey] + '</span>' : '';
+        return '<label class="w-settings-option">' +
+          '<input type="checkbox" ' + checked + ' data-widget="' + widgetId + '" data-item="' + it.id + '">' +
+          it[nameKey] + metaStr +
+        '</label>';
+      }).join('') +
+    '</div>';
+}
+
+function toggleWidgetSettings(widgetId, btnEl) {
+  var panel = document.getElementById('settings-' + widgetId);
+  if (!panel) return;
+  panel.classList.toggle('hidden');
+  if (btnEl) btnEl.classList.toggle('active', !panel.classList.contains('hidden'));
+}
+
+function applyWidgetSettings(widgetId) {
+  var panel = document.getElementById('settings-' + widgetId);
+  if (!panel) return;
+  if (widgetId === 'obs') {
+    var onCb = panel.querySelector('input[data-obs-on]');
+    if (onCb) PATIENT_B.obs.on = onCb.checked;
+    panel.querySelectorAll('input[data-obs-cat]').forEach(function(cb) {
+      PATIENT_B.obs.categories[cb.getAttribute('data-obs-cat')] = cb.checked;
+    });
+  } else if (widgetId === 'proc') {
+    var cnt = panel.querySelector('input[data-proc-count]');
+    if (cnt) PATIENT_B.proc.showLast = Math.max(1, parseInt(cnt.value) || 1);
+  } else if (PATIENT_B[widgetId]) {
+    var newTracked = [];
+    panel.querySelectorAll('input[data-widget="' + widgetId + '"]').forEach(function(cb) {
+      if (cb.checked) newTracked.push(cb.getAttribute('data-item'));
+    });
+    PATIENT_B[widgetId].tracked = newTracked;
+  }
+  renderWidgetsB();
+}
+
+/* 위젯 매니지먼트 (레벨 1) */
+function openWidgetMgmt() {
+  widgetMgmtDraft = WIDGETS_B_CONFIG.map(function(w){ return Object.assign({}, w); });
+  renderWidgetMgmt();
+  document.getElementById('widgetMgmtOverlay').classList.add('active');
+}
+
+function closeWidgetMgmt() {
+  document.getElementById('widgetMgmtOverlay').classList.remove('active');
+}
+
+function renderWidgetMgmt() {
+  var list = document.getElementById('widgetMgmtList');
+  list.innerHTML = widgetMgmtDraft.map(function(w, idx) {
+    return '<div class="w-mgmt-row' + (w.on ? '' : ' off') + '">' +
+      '<span class="w-mgmt-handle">≡</span>' +
+      '<span class="w-mgmt-name">' + w.title + (w.type === 'ai' ? ' <span class="w-mini-tag" style="margin-left:4px;">AI</span>' : '') + '</span>' +
+      '<div class="w-mgmt-reorder">' +
+        '<button onclick="reorderWidgetMgmt(' + idx + ',-1)"' + (idx === 0 ? ' disabled' : '') + '>↑</button>' +
+        '<button onclick="reorderWidgetMgmt(' + idx + ',1)"' + (idx === widgetMgmtDraft.length - 1 ? ' disabled' : '') + '>↓</button>' +
+      '</div>' +
+      '<span class="w-mgmt-toggle' + (w.on ? ' on' : '') + '" onclick="toggleWidgetMgmtRow(' + idx + ')"></span>' +
+    '</div>';
+  }).join('');
+}
+
+function reorderWidgetMgmt(idx, dir) {
+  var ni = idx + dir;
+  if (ni < 0 || ni >= widgetMgmtDraft.length) return;
+  var tmp = widgetMgmtDraft[idx];
+  widgetMgmtDraft[idx] = widgetMgmtDraft[ni];
+  widgetMgmtDraft[ni] = tmp;
+  renderWidgetMgmt();
+}
+
+function toggleWidgetMgmtRow(idx) {
+  widgetMgmtDraft[idx].on = !widgetMgmtDraft[idx].on;
+  renderWidgetMgmt();
+}
+
+function applyWidgetMgmt() {
+  WIDGETS_B_CONFIG = widgetMgmtDraft.map(function(w){ return Object.assign({}, w); });
+  closeWidgetMgmt();
+  renderWidgetsB();
+}
+
+renderWidgetsB();
 </script>
 
 </body>
