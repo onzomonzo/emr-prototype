@@ -453,101 +453,55 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
   border-bottom-left-radius: 6px;
 }
 
-/* === A안: AI 자동요약 카드 === */
+/* === A안 (업데이트): 라벨 없는 펼침형 === */
 .ai-summary-card {
-  min-height: 470px; flex-shrink: 0;
+  min-height: 420px; flex-shrink: 0;
   display: flex; flex-direction: column;
 }
-.ai-summary-card .card-header {
-  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
-}
-.ai-summary-card .ai-badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  padding: 1px 6px; border-radius: 3px;
-  background: linear-gradient(90deg, #EDE9FE 0%, #DBEAFE 100%);
-  color: #6D28D9; font-size: 10px; font-weight: 600;
-}
-.ai-summary-card .ai-badge svg { color: #8B5CF6; }
-.ai-summary-card .ai-updated {
-  font-size: 10px; color: #9CA3AF; font-weight: 400;
-}
-.ai-summary-card .scenario-switch {
-  margin-left: auto; display: flex; gap: 2px; padding: 2px;
-  background: #F3F4F6; border-radius: 4px;
-}
-.ai-summary-card .scenario-btn {
-  padding: 2px 8px; font-size: 10px; font-weight: 500; color: #6B7280;
-  background: transparent; border: none; border-radius: 3px; cursor: pointer;
-  font-family: inherit;
-}
-.ai-summary-card .scenario-btn.active {
-  background: #fff; color: #111827; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
-}
-.ai-summary-card .card-body { padding: 2px 0; overflow-y: auto; }
+.ai-summary-card .card-header { padding: 8px 12px; }
+.ai-summary-card .card-body { padding: 0; overflow-y: auto; }
 
-.ai-sec { border-bottom: 1px solid #F3F4F6; }
-.ai-sec:last-child { border-bottom: none; }
-.ai-sec-header {
-  display: flex; align-items: center; gap: 6px;
-  padding: 4px 12px; cursor: pointer; user-select: none;
-}
-.ai-sec-header:hover { background: #FAFAFA; }
-.ai-sec-marker {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: #94A3B8; flex-shrink: 0;
-}
-.ai-sec.ai-section .ai-sec-marker {
-  background: #8B5CF6; box-shadow: 0 0 0 2px #EDE9FE;
-}
-.ai-sec-title { font-size: 11px; font-weight: 600; color: #374151; flex: 1; }
-.ai-sec.ai-section .ai-sec-title { color: #6D28D9; }
-.ai-mini-tag {
-  display: inline-flex; align-items: center;
-  padding: 0 4px; height: 14px;
-  background: #F5F3FF; color: #7C3AED;
-  border: 1px solid #DDD6FE; border-radius: 3px;
-  font-size: 9px; font-weight: 700; letter-spacing: 0.02em;
-}
-.ai-sec-count { font-size: 10px; color: #9CA3AF; font-weight: 500; }
-.ai-sec-chev {
-  font-size: 9px; color: #9CA3AF;
-  transition: transform 0.15s; transform-origin: center;
-}
-.ai-sec.collapsed .ai-sec-chev { transform: rotate(-90deg); }
-.ai-sec-body {
-  padding: 0 12px 5px 25px;
-  display: flex; flex-direction: column; gap: 1px;
-}
-.ai-sec.collapsed .ai-sec-body { display: none; }
-.ai-sec.ai-section .ai-sec-body {
-  background: linear-gradient(180deg, #FAF5FF 0%, transparent 100%);
+.ai-block { padding: 7px 12px; }
+.ai-block + .ai-block { border-top: 1px solid #E5E7EB; }
+.ai-block-ai {
+  background: linear-gradient(180deg, #FAF5FF 0%, #FDFAFF 100%);
+  border-left: 2px solid #C4B5FD;
+  padding-left: 10px;
 }
 
-.ai-line {
-  font-size: 11px; color: #374151; line-height: 1.5;
-  display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap;
+.ai-row {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 11px; color: #374151; line-height: 1.55;
+  padding: 1px 0; flex-wrap: wrap;
 }
 .ai-name { color: #111827; font-weight: 500; }
 .ai-meta { color: #6B7280; font-size: 10px; }
 .ai-key {
-  color: #111827; font-weight: 600; font-size: 10.5px;
-  font-variant-numeric: tabular-nums; min-width: 38px;
+  color: #111827; font-weight: 600;
+  font-variant-numeric: tabular-nums; font-size: 10.5px;
+  min-width: 44px;
 }
 .ai-trend {
-  color: #4B5563; font-size: 10.5px;
+  color: #374151; font-size: 10.5px;
   font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
 }
-.ai-arrow-down { color: #059669; font-weight: 700; font-size: 11px; }
-.ai-arrow-up { color: #DC2626; font-weight: 700; font-size: 11px; }
-.ai-arrow-flat { color: #6B7280; font-weight: 700; font-size: 11px; }
-.ai-danger { color: #DC2626; font-weight: 500; }
-.ai-warn { color: #D97706; font-weight: 500; }
-.ai-muted { color: #9CA3AF; }
-.ai-pill {
-  display: inline-block; padding: 0 4px;
-  background: #FEF3C7; color: #92400E;
-  border-radius: 3px; font-size: 9px; font-weight: 600;
+.ai-sparkle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 10px; height: 10px;
+  color: #8B5CF6; flex-shrink: 0;
 }
+
+.ai-pill {
+  display: inline-block; padding: 0 5px;
+  background: #FEF3C7; color: #92400E;
+  border-radius: 3px; font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* 정상 범위 기준 색상 (Vital · 검사) */
+.val-high   { color: #DC2626; font-weight: 600; }
+.val-low    { color: #2563EB; font-weight: 600; }
+.val-border { color: #D97706; font-weight: 600; }
 
 /* === B안: 위젯형 요약 카드 === */
 .widget-host-card { flex: 1; display: flex; flex-direction: column; min-height: 0; }
@@ -792,19 +746,66 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
     <!-- Column 1 -->
     <div class="column column-1">
       <div class="card ai-summary-card" id="aiSummaryCard-a">
-        <div class="card-header">
-          <span>환자 진료이력 요약</span>
-          <span class="ai-badge">
-            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
-            AI 자동요약
-          </span>
-          <span class="ai-updated">방금 업데이트</span>
-          <div class="scenario-switch" id="scenarioSwitch-a">
-            <button class="scenario-btn active" onclick="switchScenarioA(1)">HTN+DM</button>
-            <button class="scenario-btn" onclick="switchScenarioA(2)">갑상선+Steroid</button>
+        <div class="card-header">환자 진료이력 요약</div>
+        <div class="card-body">
+          <div class="ai-block">
+            <div class="ai-row"><span class="ai-name">갑상선기능저하증</span><span class="ai-meta">· 2020년부터</span></div>
+            <div class="ai-row"><span class="ai-name">류마티스 관절염</span><span class="ai-meta">· 2023년부터</span></div>
+            <div class="ai-row"><span class="ai-name">위식도역류병</span><span class="ai-meta">· 2024년부터</span></div>
+          </div>
+          <div class="ai-block">
+            <div class="ai-row"><span class="ai-name">레보티록신 100mcg 1T/day</span><span class="ai-meta">· 20년~</span></div>
+            <div class="ai-row"><span class="ai-name">프레드니솔론 5mg &rarr; 2.5mg</span><span class="ai-pill">tapering</span><span class="ai-meta">· 25년 4월~</span></div>
+            <div class="ai-row"><span class="ai-name">메토트렉세이트 7.5mg/week</span><span class="ai-meta">· 23년~</span></div>
+          </div>
+          <div class="ai-block ai-block-ai">
+            <div class="ai-row">
+              <span class="ai-sparkle"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+              <span class="ai-name">손떨림 호소 증가</span>
+              <span class="ai-meta">· 24.11~ · TSH 과다억제 의심</span>
+            </div>
+            <div class="ai-row">
+              <span class="ai-sparkle"><svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg></span>
+              <span class="ai-name">야간 안면 부종 보고</span>
+              <span class="ai-meta">· 25.03~</span>
+            </div>
+          </div>
+          <div class="ai-block">
+            <div class="ai-row">
+              <span class="ai-key">BP</span>
+              <span class="ai-trend">118/76 &rarr; 120/78 &rarr; <span class="val-border">122/80</span> &rarr; 119/77 &rarr; <span class="val-border">121/79</span></span>
+            </div>
+            <div class="ai-row">
+              <span class="ai-key">BW</span>
+              <span class="ai-trend">58.4 &rarr; 58.9 &rarr; 59.3 &rarr; 60.1 &rarr; 61.2 kg</span>
+            </div>
+            <div class="ai-row">
+              <span class="ai-key">HR</span>
+              <span class="ai-trend">92 &rarr; 88 &rarr; 85 &rarr; 82 &rarr; 80 bpm</span>
+            </div>
+          </div>
+          <div class="ai-block">
+            <div class="ai-row">
+              <span class="ai-key">TSH</span>
+              <span class="ai-trend"><span class="val-low">0.05</span> &rarr; <span class="val-low">0.12</span> &rarr; 0.45</span>
+              <span class="ai-meta">(24.04 / 24.10 / 25.04)</span>
+            </div>
+            <div class="ai-row">
+              <span class="ai-key">Free T4</span>
+              <span class="ai-trend">1.8 &rarr; 1.5 &rarr; 1.3</span>
+              <span class="ai-meta">(24.04 / 24.10 / 25.04)</span>
+            </div>
+          </div>
+          <div class="ai-block">
+            <div class="ai-row"><span class="ai-key">25.03</span><span class="ai-name">트리암시놀론 관절강내</span></div>
+            <div class="ai-row"><span class="ai-key">24.10</span><span class="ai-name">인플루엔자 IM</span></div>
+          </div>
+          <div class="ai-block">
+            <div class="ai-row"><span class="ai-name">인플루엔자</span><span class="ai-meta">24.10</span></div>
+            <div class="ai-row"><span class="ai-name">폐렴구균</span><span class="ai-meta">23.05</span></div>
+            <div class="ai-row"><span class="ai-name">대상포진</span><span class="ai-meta">24.04</span></div>
           </div>
         </div>
-        <div class="card-body" id="aiSummaryBody-a"></div>
       </div>
       <div class="card flex-1">
         <div class="card-header">내원이력</div>
@@ -1918,139 +1919,6 @@ document.querySelectorAll('.visit-item').forEach(function(item) {
     this.classList.add('selected');
   });
 });
-
-/* ===== A안: AI 자동요약 카드 데이터 & 렌더 ===== */
-var AI_SCENARIOS_A = {
-  1: {
-    label: 'HTN + DM 동반 만성질환 노인',
-    sections: [
-      { title:'자주 온 상병', type:'data', items:[
-        { name:'본태성 고혈압', meta:'2021년부터' },
-        { name:'제2형 당뇨병', meta:'2022년부터' },
-        { name:'이상지질혈증', meta:'2023년부터' }
-      ]},
-      { title:'장기복용약', type:'data', items:[
-        { text:'메트포르민 500mg 2T/day', meta:'22년~' },
-        { text:'아모잘탄정 5/50mg 1T/day', meta:'21년~' },
-        { text:'라미프릴 5mg 1T/day', meta:'24년~' },
-        { text:'아토르바스타틴 10mg 1T/day', meta:'23년~' }
-      ]},
-      { title:'관찰 중', type:'ai', items:[
-        { html:'<span class="ai-name">기침 관찰 중</span> <span class="ai-meta">(ACE 억제제 부작용 의심)</span>' }
-      ]},
-      { title:'Vital 추이', type:'data', items:[
-        { key:'BP', trend:'145/90 → 140/88 → 138/85 → 135/82 → 130/80', arrow:'↓', dir:'down' },
-        { key:'BW', trend:'72.4 → 71.8 → 71.5 → 70.9 → 70.2 kg', arrow:'↓', dir:'down' }
-      ]},
-      { title:'검사 추이', type:'data', items:[
-        { key:'HbA1c', trend:'7.5 → 7.2 → 6.9', arrow:'↓', dir:'down', meta:'(23.10 / 24.04 / 24.10)' },
-        { key:'LDL', trend:'145 → 122 → 108', arrow:'↓', dir:'down', meta:'(23.10 / 24.04 / 24.10)' }
-      ]},
-      { title:'알레르기 / DUR 이력', type:'data', items:[
-        { html:'<span class="ai-danger">페니실린 알레르기</span> · NSAIDs DUR 충돌 이력 <span class="ai-meta">(24.03)</span>' }
-      ]},
-      { title:'처치 / 주사 이력', type:'data', items:[
-        { html:'최근 6개월 <span class="ai-name">4건</span> · 마지막 <span class="ai-name">25.02 인플루엔자 IM</span>' }
-      ]},
-      { title:'예방접종', type:'data', items:[
-        { html:'인플 <span class="ai-name">24.10</span> · 폐렴구균 <span class="ai-name">22.06</span> · 대상포진 <span class="ai-muted">미접종</span>' }
-      ]}
-    ]
-  },
-  2: {
-    label: '갑상선기능저하 + 스테로이드 tapering',
-    sections: [
-      { title:'자주 온 상병', type:'data', items:[
-        { name:'갑상선기능저하증', meta:'2020년부터' },
-        { name:'류마티스 관절염', meta:'2023년부터' },
-        { name:'위식도역류병', meta:'2024년부터' }
-      ]},
-      { title:'장기복용약', type:'data', items:[
-        { text:'레보티록신 100mcg 1T/day', meta:'20년~' },
-        { html:'<span class="ai-name">프레드니솔론 5mg → 2.5mg</span> <span class="ai-pill">tapering</span> <span class="ai-meta">25년 4월~</span>' },
-        { text:'메토트렉세이트 7.5mg/week', meta:'23년~' }
-      ]},
-      { title:'관찰 중', type:'ai', items:[
-        { html:'<span class="ai-name">손떨림 호소 증가</span> <span class="ai-meta">(24.11~ · TSH 과다억제 의심)</span>' },
-        { html:'<span class="ai-name">야간 안면 부종 보고</span> <span class="ai-meta">(25.03~)</span>' }
-      ]},
-      { title:'Vital 추이', type:'data', items:[
-        { key:'BP', trend:'118/76 → 120/78 → 122/80 → 119/77 → 121/79', arrow:'→', dir:'flat' },
-        { key:'BW', trend:'58.4 → 58.9 → 59.3 → 60.1 → 61.2 kg', arrow:'↑', dir:'up' },
-        { key:'HR', trend:'92 → 88 → 85 → 82 → 80 bpm', arrow:'↓', dir:'down' }
-      ]},
-      { title:'검사 추이', type:'data', items:[
-        { key:'TSH', trend:'0.05 → 0.12 → 0.45', arrow:'↑', dir:'up', meta:'(24.04 / 24.10 / 25.04)' },
-        { key:'Free T4', trend:'1.8 → 1.5 → 1.3', arrow:'↓', dir:'down', meta:'(24.04 / 24.10 / 25.04)' }
-      ]},
-      { title:'알레르기 / DUR 이력', type:'data', items:[
-        { html:'<span class="ai-danger">술파제 알레르기</span> · DUR 충돌 <span class="ai-muted">없음</span>' }
-      ]},
-      { title:'처치 / 주사 이력', type:'data', items:[
-        { html:'최근 6개월 <span class="ai-name">6건</span> · 마지막 <span class="ai-name">25.03 트리암시놀론 관절강내</span>' }
-      ]},
-      { title:'예방접종', type:'data', items:[
-        { html:'인플 <span class="ai-name">24.10</span> · 폐렴 <span class="ai-name">23.05</span> · 대상포진 <span class="ai-name">24.04</span> · COVID <span class="ai-name">23.09</span>' }
-      ]}
-    ]
-  }
-};
-
-function renderAiSummaryA(sid) {
-  var data = AI_SCENARIOS_A[sid];
-  var body = document.getElementById('aiSummaryBody-a');
-  if (!body) return;
-  body.innerHTML = data.sections.map(function(sec) {
-    var isAi = sec.type === 'ai';
-    var lines = sec.items.map(function(it) {
-      return '<div class="ai-line">' + renderAiItem(it) + '</div>';
-    }).join('');
-    return '<div class="ai-sec' + (isAi ? ' ai-section' : '') + '">' +
-      '<div class="ai-sec-header" onclick="toggleAiSec(this)">' +
-        '<span class="ai-sec-marker"></span>' +
-        '<span class="ai-sec-title">' + sec.title + '</span>' +
-        (isAi ? '<span class="ai-mini-tag">AI</span>' : '') +
-        '<span class="ai-sec-chev">&#9662;</span>' +
-      '</div>' +
-      '<div class="ai-sec-body">' + lines + '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function renderAiItem(it) {
-  if (it.html) return it.html;
-  if (it.key) {
-    var arrowClass = it.dir === 'down' ? 'ai-arrow-down' :
-                     it.dir === 'up' ? 'ai-arrow-up' : 'ai-arrow-flat';
-    return '<span class="ai-key">' + it.key + '</span>' +
-           '<span class="ai-trend">' + it.trend + '</span>' +
-           '<span class="' + arrowClass + '">' + it.arrow + '</span>' +
-           (it.meta ? '<span class="ai-meta">' + it.meta + '</span>' : '');
-  }
-  if (it.name) {
-    return '<span class="ai-name">' + it.name + '</span>' +
-           '<span class="ai-meta">· ' + it.meta + '</span>';
-  }
-  if (it.text) {
-    return '<span class="ai-name">' + it.text + '</span>' +
-           (it.meta ? '<span class="ai-meta">· ' + it.meta + '</span>' : '');
-  }
-  return '';
-}
-
-function toggleAiSec(headerEl) {
-  headerEl.parentElement.classList.toggle('collapsed');
-}
-
-function switchScenarioA(sid) {
-  var sw = document.getElementById('scenarioSwitch-a');
-  if (!sw) return;
-  sw.querySelectorAll('.scenario-btn').forEach(function(b) { b.classList.remove('active'); });
-  sw.querySelectorAll('.scenario-btn')[sid - 1].classList.add('active');
-  renderAiSummaryA(sid);
-}
-
-renderAiSummaryA(1);
 
 /* ===== B안: 위젯형 요약 카드 ===== */
 var WIDGETS_B_CONFIG = [
