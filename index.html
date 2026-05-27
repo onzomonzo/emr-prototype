@@ -523,35 +523,35 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
 }
 .widget-mgmt-btn:hover { background: #F3F4F6; color: #111827; border-color: #E5E7EB; }
 .w-card {
+  position: relative;
   border: 1px solid #E5E7EB; border-radius: 6px; background: #fff;
   overflow: hidden; min-width: 0;
 }
 .w-card.span-2 { grid-column: 1 / -1; }
+.w-card.ai-widget {
+  background: linear-gradient(180deg, #FAF5FF 0%, #FFFFFF 55%);
+  border-left: 2px solid #C4B5FD;
+}
 .w-card-header {
-  display: flex; align-items: center; gap: 6px;
-  padding: 5px 10px; border-bottom: 1px solid #F3F4F6;
-  background: #FAFAFA;
+  display: flex; align-items: center; gap: 4px;
+  padding: 3px 22px 1px 6px;
+  background: transparent;
+  border-bottom: none;
 }
-.w-card.ai-widget .w-card-header { background: linear-gradient(90deg, #FAF5FF 0%, #FAFAFA 100%); }
-.w-card-icon { color: #6B7280; flex-shrink: 0; display: inline-flex; }
+.w-card-icon { color: #9CA3AF; flex-shrink: 0; display: inline-flex; }
 .w-card.ai-widget .w-card-icon { color: #8B5CF6; }
-.w-card-title { font-size: 11px; font-weight: 600; color: #111827; flex: 1; }
+.w-card-title { font-size: 10px; font-weight: 600; color: #6B7280; letter-spacing: 0.01em; }
 .w-card.ai-widget .w-card-title { color: #6D28D9; }
-.w-mini-tag {
-  padding: 0 4px; height: 14px; line-height: 13px;
-  background: #F5F3FF; color: #7C3AED;
-  border: 1px solid #DDD6FE; border-radius: 3px;
-  font-size: 9px; font-weight: 700;
-}
 .w-card-action {
-  width: 20px; height: 20px;
+  position: absolute; top: 3px; right: 3px;
+  width: 18px; height: 18px;
   display: inline-flex; align-items: center; justify-content: center;
-  border: none; background: none; color: #9CA3AF;
-  border-radius: 3px; cursor: pointer;
+  border: none; background: transparent; color: #9CA3AF;
+  border-radius: 3px; cursor: pointer; z-index: 2;
 }
 .w-card-action:hover { background: #F3F4F6; color: #374151; }
 .w-card-action.active { background: #F3E8FF; color: #7C3AED; }
-.w-card-body { padding: 6px 10px 8px; }
+.w-card-body { padding: 2px 8px 7px; }
 
 .w-chips { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
 .w-chip {
@@ -590,6 +590,53 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
 }
 .w-row-meta { color: #9CA3AF; font-size: 9.5px; flex-shrink: 0; }
 .w-row.ai-row .w-row-name { color: #6D28D9; }
+
+/* Vital / 검사 가로 표 */
+.w-data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 10.5px; font-variant-numeric: tabular-nums;
+}
+.w-data-table th {
+  color: #9CA3AF; font-size: 9px; font-weight: 500;
+  padding: 2px 4px; text-align: center;
+  border-bottom: 1px solid #F3F4F6;
+}
+.w-data-table th:first-child { text-align: left; }
+.w-data-table tbody tr { cursor: pointer; }
+.w-data-table tbody tr:hover td { background: #F9FAFB; }
+.w-data-table tbody tr.active td { background: #F3E8FF; }
+.w-data-table td {
+  padding: 3px 4px; text-align: center;
+  color: #374151;
+}
+.w-data-table td:first-child {
+  text-align: left;
+  color: #111827; font-weight: 600;
+  padding-left: 4px;
+}
+.w-td-unit { color: #9CA3AF; font-size: 9px; font-weight: 400; margin-left: 2px; }
+
+/* 백신 칩 (색상-only 상태) */
+.w-chips-vac { display: flex; flex-wrap: wrap; gap: 4px; }
+.w-chip.vac-rec {
+  background: #FEE2E2; border-color: #FECACA; color: #991B1B;
+}
+.w-chip.vac-rec .w-chip-name { color: #991B1B; font-weight: 600; }
+.w-chip.vac-rec .w-chip-meta { color: #B91C1C; }
+.w-chip.vac-done {
+  background: #F3F4F6; border-color: transparent; color: #6B7280;
+}
+.w-chip.vac-done .w-chip-name { color: #6B7280; font-weight: 500; }
+.w-chip.vac-done .w-chip-meta { color: #9CA3AF; }
+.w-chip.vac-na {
+  background: #FAFAFA; border-color: #F3F4F6; color: #9CA3AF;
+  opacity: 0.7;
+}
+.w-chip-series {
+  display: inline-block; padding: 0 4px;
+  background: rgba(0,0,0,0.06); border-radius: 3px;
+  font-size: 9.5px; font-weight: 600;
+}
 
 .w-arrow-down { color: #059669; font-weight: 700; }
 .w-arrow-up { color: #DC2626; font-weight: 700; }
@@ -1933,11 +1980,11 @@ var PATIENT_B = {
   dx: {
     tracked: ['hypo','ra','gerd'],
     available: [
-      { id:'hypo', name:'갑상선기능저하증', meta:'2020년부터', visits:18, lastVisit:'25.04.10' },
-      { id:'ra',   name:'류마티스 관절염',  meta:'2023년부터', visits:12, lastVisit:'25.03.20' },
-      { id:'gerd', name:'위식도역류병',     meta:'2024년부터', visits:5,  lastVisit:'25.02.14' },
-      { id:'htn',  name:'본태성 고혈압',    meta:'2024년부터', visits:3,  lastVisit:'25.01.15' },
-      { id:'lip',  name:'이상지질혈증',     meta:'2023년부터', visits:6,  lastVisit:'24.10.05' }
+      { id:'hypo', name:'갑상선기능저하증', meta:'6년째', since:'2020년', visits:18, lastVisit:'25.04.10' },
+      { id:'ra',   name:'류마티스 관절염',  meta:'3년째', since:'2023년', visits:12, lastVisit:'25.03.20' },
+      { id:'gerd', name:'위식도역류병',     meta:'2년째', since:'2024년', visits:5,  lastVisit:'25.02.14' },
+      { id:'htn',  name:'본태성 고혈압',    meta:'2년째', since:'2024년', visits:3,  lastVisit:'25.01.15' },
+      { id:'lip',  name:'이상지질혈증',     meta:'3년째', since:'2023년', visits:6,  lastVisit:'24.10.05' }
     ]
   },
   meds: {
@@ -1963,43 +2010,25 @@ var PATIENT_B = {
   },
   vital: {
     tracked: ['bp','bw','hr'],
+    dates: ['24.10','25.01','25.03','25.04','25.05'],
     available: [
-      { id:'bp',   key:'BP',   unit:'',
-        series:['118/76','120/78','122/80','119/77','121/79'],
-        seriesColors:['','','','',''],
-        dates:['24.10','24.12','25.01','25.03','25.04'],
-        normal:'< 130/80 mmHg' },
-      { id:'bw',   key:'BW',   unit:'kg',
-        series:['58.4','58.9','59.3','60.1','61.2'],
-        seriesColors:['','','','',''],
-        dates:['24.10','24.12','25.01','25.03','25.04'],
-        normal:'개별 기준' },
-      { id:'hr',   key:'HR',   unit:'bpm',
-        series:['92','88','85','82','80'],
-        seriesColors:['','','','',''],
-        dates:['24.10','24.12','25.01','25.03','25.04'],
-        normal:'60 - 100 bpm' },
-      { id:'spo2', key:'SpO2', unit:'%',
-        series:['98','98','97','98','98'],
-        seriesColors:['','','','',''],
-        dates:['24.10','24.12','25.01','25.03','25.04'],
-        normal:'≥ 95 %' },
-      { id:'bt',   key:'BT',   unit:'°C',
-        series:['36.5','36.4','36.6','36.5','36.5'],
-        seriesColors:['','','','',''],
-        dates:['24.10','24.12','25.01','25.03','25.04'],
-        normal:'36.0 - 37.5 °C' }
+      { id:'bp',   key:'BP',   unit:'',     vals:['118/76','120/78','122/80','119/77','121/79'], colors:['','','','',''], normal:'< 130/80 mmHg' },
+      { id:'bw',   key:'BW',   unit:'kg',   vals:['58.4','58.9','59.3','60.1','61.2'],          colors:['','','','',''], normal:'개별 기준' },
+      { id:'hr',   key:'HR',   unit:'bpm',  vals:['92','88','85','82','80'],                    colors:['','','','',''], normal:'60 - 100 bpm' },
+      { id:'spo2', key:'SpO2', unit:'%',    vals:['98','98','97','98','98'],                    colors:['','','','',''], normal:'≥ 95 %' },
+      { id:'bt',   key:'BT',   unit:'°C',   vals:['36.5','36.4','36.6','36.5','36.5'],          colors:['','','','',''], normal:'36.0 - 37.5 °C' }
     ]
   },
   lab: {
     tracked: ['tsh','t4'],
+    dates: ['24.04','24.10','25.04'],
     available: [
-      { id:'tsh',   key:'TSH',     vals:['0.05','0.12','0.45'], colors:['low','low',''],     dates:['24.04','24.10','25.04'], normal:'0.4 - 4.0 mIU/L' },
-      { id:'t4',    key:'Free T4', vals:['1.8','1.5','1.3'],    colors:['','',''],           dates:['24.04','24.10','25.04'], normal:'0.8 - 1.8 ng/dL' },
-      { id:'hba1c', key:'HbA1c',   vals:['5.7','5.8','5.6'],    colors:['','',''],           dates:['24.04','24.10','25.04'], normal:'< 5.7 %' },
-      { id:'ldl',   key:'LDL',     vals:['135','128','118'],    colors:['high','',''],       dates:['24.04','24.10','25.04'], normal:'< 130 mg/dL' },
-      { id:'cr',    key:'Cr',      vals:['0.9','0.95','1.0'],   colors:['','',''],           dates:['24.04','24.10','25.04'], normal:'0.7 - 1.3 mg/dL' },
-      { id:'egfr',  key:'eGFR',    vals:['82','78','75'],       colors:['','',''],           dates:['24.04','24.10','25.04'], normal:'≥ 60 mL/min/1.73m²' }
+      { id:'tsh',   key:'TSH',     unit:'mIU/L',      vals:['0.05','0.12','0.45'], colors:['low','low',''], normal:'0.4 - 4.0 mIU/L' },
+      { id:'t4',    key:'Free T4', unit:'ng/dL',      vals:['1.8','1.5','1.3'],    colors:['','',''],       normal:'0.8 - 1.8 ng/dL' },
+      { id:'hba1c', key:'HbA1c',   unit:'%',          vals:['5.7','5.8','5.6'],    colors:['','',''],       normal:'< 5.7 %' },
+      { id:'ldl',   key:'LDL',     unit:'mg/dL',      vals:['135','128','118'],    colors:['high','',''],   normal:'< 130 mg/dL' },
+      { id:'cr',    key:'Cr',      unit:'mg/dL',      vals:['0.9','0.95','1.0'],   colors:['','',''],       normal:'0.7 - 1.3 mg/dL' },
+      { id:'egfr',  key:'eGFR',    unit:'mL/min',     vals:['82','78','75'],       colors:['','',''],       normal:'≥ 60 mL/min/1.73m²' }
     ]
   },
   proc: {
@@ -2010,20 +2039,35 @@ var PATIENT_B = {
       { id:'procedure', name:'관절강내 / 처치' },
       { id:'wound',     name:'창상 처치' }
     ],
-    items: [
-      { id:'tri', text:'트리암시놀론 관절강내', date:'25.03', category:'procedure', site:'우측 슬관절',   note:'RA 관절염 악화로 시행' },
-      { id:'flu', text:'인플루엔자 IM',         date:'24.10', category:'injection', site:'좌측 삼각근',   note:'국가예방접종 사업' }
+    groups: [
+      { id:'tri', name:'트리암시놀론 관절강내', dates:['25.03','24.09','24.03'], category:'procedure', site:'우측 슬관절', note:'RA 관절염 악화로 반복 시행' },
+      { id:'flu', name:'인플루엔자 IM',         dates:['24.10','23.10'],          category:'injection', site:'좌측 삼각근', note:'국가예방접종 사업' }
     ]
   },
   vac: {
-    tracked: ['flu','pneumo','zoster','covid'],
+    tracked: ['flu','pcv13','ppsv23','zoster','covid','tdap'],
     available: [
-      { id:'flu',    name:'인플루엔자', date:'24.10', status:'completed' },
-      { id:'pneumo', name:'폐렴구균',   date:'23.05', status:'completed' },
-      { id:'zoster', name:'대상포진',   date:'24.04', status:'completed' },
-      { id:'covid',  name:'COVID-19',  date:'23.09', status:'completed' },
-      { id:'tdap',   name:'Tdap',      date:null,    status:'missed'    },
-      { id:'hpv',    name:'HPV',       date:null,    status:'not-applicable' }
+      { id:'flu',    name:'인플루엔자', date:'24.10',          status:'recommended',
+        reason:'매년 갱신 시점 지남', schedule:'매 시즌 1회 (가을~겨울)',
+        history:[{date:'24.10'},{date:'23.10'},{date:'22.10'}] },
+      { id:'pcv13',  name:'PCV13',     date:'23.05',          status:'completed',
+        reason:'시리즈 완료', schedule:'65세 이상 1회',
+        history:[{date:'23.05'}] },
+      { id:'ppsv23', name:'PPSV23',    date:null,             status:'recommended',
+        reason:'미접종', schedule:'PCV13 접종 후 1년 경과 시',
+        history:[] },
+      { id:'zoster', name:'대상포진',   date:'24.04', series:'1/2', status:'recommended',
+        reason:'시리즈 진행 중 (2/2 잔여)', schedule:'1차 접종 후 2-6개월 사이 2차',
+        history:[{date:'24.04', label:'1/2'}] },
+      { id:'covid',  name:'COVID-19',  date:'23.09',          status:'recommended',
+        reason:'최신 갱신 시점 지남', schedule:'매 시즌 갱신 권장',
+        history:[{date:'23.09'},{date:'22.12'},{date:'21.11'}] },
+      { id:'tdap',   name:'Tdap',      date:null,             status:'recommended',
+        reason:'미접종', schedule:'10년마다 1회',
+        history:[] },
+      { id:'hpv',    name:'HPV',       date:null,             status:'not-applicable',
+        reason:'성별/연령상 권장 대상 아님', schedule:'-',
+        history:[] }
     ]
   }
 };
@@ -2128,47 +2172,41 @@ function renderWidgetObs() {
 
 function renderWidgetVital() {
   var v = PATIENT_B.vital;
-  var rows = v.tracked.map(function(tid) {
-    var it = v.available.find(function(a){ return a.id === tid; });
-    if (!it) return '';
-    var trend = it.series.map(function(s, i){ return colorize(s, it.seriesColors[i]); }).join(' &rarr; ');
-    if (it.unit) trend += ' ' + it.unit;
-    return '<div class="w-row" onclick="showWidgetDetail(\'vital\',\'' + tid + '\', this)">' +
-      '<span class="w-row-key">' + it.key + '</span>' +
-      '<span class="w-row-trend">' + trend + '</span>' +
-    '</div>';
-  }).join('');
-  return (rows || '<div class="w-empty">추적 항목 없음</div>') +
+  var tracked = v.tracked.map(function(tid){ return v.available.find(function(a){ return a.id === tid; }); }).filter(Boolean);
+  if (!tracked.length) return '<div class="w-empty">추적 항목 없음</div>';
+  return renderHTable('vital', v.dates, tracked) +
          '<div class="w-detail hidden" id="detail-vital"></div>';
 }
 
 function renderWidgetLab() {
   var lab = PATIENT_B.lab;
-  var rows = lab.tracked.map(function(tid) {
-    var it = lab.available.find(function(a){ return a.id === tid; });
-    if (!it) return '';
-    var trend = it.vals.map(function(v, i){ return colorize(v, it.colors[i]); }).join(' &rarr; ');
-    return '<div class="w-row" onclick="showWidgetDetail(\'lab\',\'' + tid + '\', this)">' +
-      '<span class="w-row-key">' + it.key + '</span>' +
-      '<span class="w-row-trend">' + trend + '</span>' +
-      '<span class="w-row-meta">(' + it.dates.join(' / ') + ')</span>' +
-    '</div>';
-  }).join('');
-  return (rows || '<div class="w-empty">추적 검사 없음</div>') +
+  var tracked = lab.tracked.map(function(tid){ return lab.available.find(function(a){ return a.id === tid; }); }).filter(Boolean);
+  if (!tracked.length) return '<div class="w-empty">추적 검사 없음</div>';
+  return renderHTable('lab', lab.dates, tracked) +
          '<div class="w-detail hidden" id="detail-lab"></div>';
+}
+
+function renderHTable(widgetId, dates, items) {
+  var th = '<tr><th></th>' + dates.map(function(d){ return '<th>' + d + '</th>'; }).join('') + '</tr>';
+  var rows = items.map(function(it) {
+    var keyCell = '<td>' + it.key + (it.unit ? '<span class="w-td-unit">' + it.unit + '</span>' : '') + '</td>';
+    var valCells = it.vals.map(function(v, i){ return '<td>' + colorize(v, it.colors[i]) + '</td>'; }).join('');
+    return '<tr onclick="showWidgetDetail(\'' + widgetId + '\',\'' + it.id + '\', this)">' + keyCell + valCells + '</tr>';
+  }).join('');
+  return '<table class="w-data-table"><thead>' + th + '</thead><tbody>' + rows + '</tbody></table>';
 }
 
 function renderWidgetProc() {
   var proc = PATIENT_B.proc;
-  var rows = proc.items
-    .filter(function(it){ return proc.trackedCategories.indexOf(it.category) !== -1; })
-    .map(function(it) {
-      return '<div class="w-row" onclick="showWidgetDetail(\'proc\',\'' + it.id + '\', this)">' +
-        '<span class="w-row-key">' + it.date + '</span>' +
-        '<span class="w-row-trend">' + it.text + '</span>' +
+  var rows = proc.groups
+    .filter(function(g){ return proc.trackedCategories.indexOf(g.category) !== -1; })
+    .map(function(g) {
+      return '<div class="w-row" onclick="showWidgetDetail(\'proc\',\'' + g.id + '\', this)">' +
+        '<span class="w-row-name">' + g.name + '</span>' +
+        '<span class="w-row-meta">' + g.dates.join(' · ') + '</span>' +
       '</div>';
     }).join('');
-  return (rows || '<div class="w-empty">최근 처치 없음</div>') +
+  return (rows || '<div class="w-empty">추적 카테고리 없음</div>') +
          '<div class="w-detail hidden" id="detail-proc"></div>';
 }
 
@@ -2177,13 +2215,16 @@ function renderWidgetVac() {
   var chips = vac.tracked.map(function(tid) {
     var it = vac.available.find(function(a){ return a.id === tid; });
     if (!it) return '';
-    var missed = !it.date;
-    return '<span class="w-chip' + (missed ? ' missed' : '') + '" onclick="showWidgetDetail(\'vac\',\'' + tid + '\', this)">' +
-      '<span class="w-chip-name">' + it.name + '</span>' +
-      '<span class="w-chip-meta">' + (it.date || '미접종') + '</span>' +
+    var stateClass = it.status === 'recommended' ? ' vac-rec'
+                   : it.status === 'completed'   ? ' vac-done'
+                   : ' vac-na';
+    var seriesStr = it.series ? ' <span class="w-chip-series">' + it.series + '</span>' : '';
+    var dateStr   = it.date   ? '<span class="w-chip-meta">' + it.date + '</span>' : '';
+    return '<span class="w-chip' + stateClass + '" onclick="showWidgetDetail(\'vac\',\'' + tid + '\', this)">' +
+      '<span class="w-chip-name">' + it.name + '</span>' + seriesStr + dateStr +
     '</span>';
   }).join('');
-  return '<div class="w-chips">' + (chips || '<div class="w-empty">추적 백신 없음</div>') + '</div>' +
+  return '<div class="w-chips-vac">' + (chips || '<div class="w-empty">추적 백신 없음</div>') + '</div>' +
          '<div class="w-detail hidden" id="detail-vac"></div>';
 }
 
@@ -2208,7 +2249,7 @@ function buildDetailHtml(widgetId, itemId) {
   switch (widgetId) {
     case 'dx':
       it = PATIENT_B.dx.available.find(function(a){ return a.id === itemId; });
-      return '<div class="w-detail-row"><span>최초 등록</span><span>' + it.meta + '</span></div>' +
+      return '<div class="w-detail-row"><span>최초 등록</span><span>' + it.since + ' (' + it.meta + ')</span></div>' +
              '<div class="w-detail-row"><span>최근 진료</span><span>' + it.lastVisit + '</span></div>' +
              '<div class="w-detail-row"><span>누적 진료</span><span>' + it.visits + '회</span></div>';
     case 'meds':
@@ -2223,10 +2264,11 @@ function buildDetailHtml(widgetId, itemId) {
              '<div class="w-detail-row"><span>AI 신뢰도</span><span class="w-detail-confidence">' + Math.round(it.confidence*100) + '%</span></div>';
     case 'vital':
       it = PATIENT_B.vital.available.find(function(a){ return a.id === itemId; });
+      var lastIdxV = it.vals.length - 1;
       return '<div class="w-detail-row"><span>정상 범위</span><span>' + it.normal + '</span></div>' +
-             '<div class="w-detail-row"><span>측정일</span><span>' + it.dates.join(' / ') + '</span></div>' +
+             '<div class="w-detail-row"><span>측정일</span><span>' + PATIENT_B.vital.dates.join(' / ') + '</span></div>' +
              '<div class="w-detail-row"><span>최근 측정</span><span>' +
-               colorize(it.series[it.series.length-1], it.seriesColors[it.seriesColors.length-1]) +
+               colorize(it.vals[lastIdxV], it.colors[lastIdxV]) +
                (it.unit ? ' ' + it.unit : '') +
              '</span></div>';
     case 'lab':
@@ -2234,19 +2276,25 @@ function buildDetailHtml(widgetId, itemId) {
       var lSeries = it.vals.map(function(v, i){ return colorize(v, it.colors[i]); }).join(' &rarr; ');
       return '<div class="w-detail-row"><span>정상 범위</span><span>' + it.normal + '</span></div>' +
              '<div class="w-detail-row"><span>측정값</span><span style="font-variant-numeric:tabular-nums;">' + lSeries + '</span></div>' +
-             '<div class="w-detail-row"><span>시행일</span><span>' + it.dates.join(' / ') + '</span></div>';
+             '<div class="w-detail-row"><span>시행일</span><span>' + PATIENT_B.lab.dates.join(' / ') + '</span></div>';
     case 'proc':
-      it = PATIENT_B.proc.items.find(function(a){ return a.id === itemId; });
-      return '<div class="w-detail-row"><span>시행일</span><span>' + it.date + '</span></div>' +
-             '<div class="w-detail-row"><span>항목</span><span>' + it.text + '</span></div>' +
+      it = PATIENT_B.proc.groups.find(function(g){ return g.id === itemId; });
+      return '<div class="w-detail-row"><span>시행 횟수</span><span>' + it.dates.length + '회</span></div>' +
+             '<div class="w-detail-row"><span>시행일</span><span>' + it.dates.join(' / ') + '</span></div>' +
              '<div class="w-detail-row"><span>부위</span><span>' + it.site + '</span></div>' +
              '<div class="w-detail-row"><span>메모</span><span>' + it.note + '</span></div>';
     case 'vac':
       it = PATIENT_B.vac.available.find(function(a){ return a.id === itemId; });
-      return '<div class="w-detail-row"><span>백신</span><span>' + it.name + '</span></div>' +
-             '<div class="w-detail-row"><span>최근 접종</span><span>' + (it.date || '없음') + '</span></div>' +
-             '<div class="w-detail-row"><span>상태</span><span style="' + (it.status === 'missed' ? 'color:#DC2626;font-weight:600;' : '') + '">' +
-               (it.status === 'completed' ? '완료' : it.status === 'missed' ? '미접종' : '해당 없음') + '</span></div>';
+      var histHtml = it.history.length
+        ? it.history.map(function(h){ return h.date + (h.label ? ' (' + h.label + ')' : ''); }).join(' / ')
+        : '없음';
+      var stateText = it.status === 'recommended' ? '권장'
+                    : it.status === 'completed'   ? '완료'
+                    : '해당 없음';
+      var stateStyle = it.status === 'recommended' ? 'color:#DC2626;font-weight:600;' : '';
+      return '<div class="w-detail-row"><span>접종 이력</span><span>' + histHtml + '</span></div>' +
+             '<div class="w-detail-row"><span>권장 스케줄</span><span>' + it.schedule + '</span></div>' +
+             '<div class="w-detail-row"><span>상태</span><span style="' + stateStyle + '">' + stateText + ' · ' + it.reason + '</span></div>';
   }
   return '';
 }
