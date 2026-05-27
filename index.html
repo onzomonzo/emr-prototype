@@ -638,6 +638,60 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
   font-size: 9.5px; font-weight: 600;
 }
 
+/* 임상메모 요약 */
+.w-note-row {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 2px 0; font-size: 11px; line-height: 1.5;
+  cursor: pointer; border-radius: 3px;
+}
+.w-note-row:hover { background: #F9FAFB; }
+.w-note-row.active { background: #F3E8FF; }
+.w-badge {
+  display: inline-block; padding: 1px 7px; flex-shrink: 0;
+  background: #EEF2FF; color: #4338CA;
+  border-radius: 10px; font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.02em;
+  align-self: flex-start; line-height: 1.4;
+}
+.w-note-content { color: #374151; flex: 1; min-width: 0; }
+
+/* 상병별 처방 그루핑 */
+.w-dx-group { padding: 3px 0; }
+.w-dx-group + .w-dx-group { border-top: 1px dashed #F3F4F6; margin-top: 2px; padding-top: 5px; }
+.w-dx-head {
+  display: flex; align-items: baseline; gap: 4px;
+  padding: 1px 4px; cursor: pointer; border-radius: 3px;
+  font-size: 11px;
+}
+.w-dx-head:hover { background: #F9FAFB; }
+.w-dx-head.active { background: #F3E8FF; }
+.w-dx-name { color: #111827; font-weight: 600; }
+.w-dx-meta { color: #6B7280; font-size: 10px; }
+.w-dx-meds { padding-left: 12px; margin-top: 1px; }
+.w-dx-med {
+  display: flex; align-items: baseline; gap: 4px;
+  padding: 1px 4px; font-size: 10.5px; color: #4B5563;
+  cursor: pointer; border-radius: 3px;
+  position: relative; line-height: 1.45;
+}
+.w-dx-med:hover { background: #F9FAFB; }
+.w-dx-med.active { background: #F3E8FF; }
+.w-dx-med::before {
+  content: '·'; color: #9CA3AF; margin-right: 2px; flex-shrink: 0;
+}
+.w-dx-med-name { color: #111827; font-weight: 500; }
+.w-dx-med-meta { color: #9CA3AF; font-size: 9.5px; }
+.w-dx-empty {
+  padding: 2px 0 2px 12px; font-size: 10px; color: #9CA3AF; font-style: italic;
+}
+
+/* Pin 표시 (위젯 매니지먼트) */
+.w-mgmt-pin {
+  color: #7C3AED; font-size: 11px; line-height: 1; flex-shrink: 0;
+  margin-right: -4px;
+}
+.w-mgmt-row.pinned .w-mgmt-name { color: #4C1D95; font-weight: 600; }
+
 .w-arrow-down { color: #059669; font-weight: 700; }
 .w-arrow-up { color: #DC2626; font-weight: 700; }
 .w-arrow-flat { color: #6B7280; font-weight: 700; }
@@ -1967,33 +2021,45 @@ document.querySelectorAll('.visit-item').forEach(function(item) {
 
 /* ===== B안: 위젯형 요약 카드 ===== */
 var WIDGETS_B_CONFIG = [
-  { id:'dx',    title:'자주 온 상병',  on:true, type:'data', span:1 },
-  { id:'meds',  title:'장기복용약',    on:true, type:'data', span:1 },
-  { id:'obs',   title:'관찰 중',       on:true, type:'ai',   span:1 },
-  { id:'vital', title:'Vital',         on:true, type:'data', span:2 },
-  { id:'lab',   title:'검사',          on:true, type:'data', span:2 },
-  { id:'proc',  title:'처치 / 주사',   on:true, type:'data', span:1 },
-  { id:'vac',   title:'예방접종',      on:true, type:'data', span:1 }
+  { id:'note',   title:'임상메모 요약', on:true, type:'data', span:2, pinned:true },
+  { id:'dxmeds', title:'상병별 처방',   on:true, type:'data', span:1 },
+  { id:'obs',    title:'관찰 중',       on:true, type:'ai',   span:1 },
+  { id:'vital',  title:'Vital',         on:true, type:'data', span:2 },
+  { id:'lab',    title:'검사',          on:true, type:'data', span:2 },
+  { id:'proc',   title:'처치 / 주사',   on:true, type:'data', span:1 },
+  { id:'vac',    title:'예방접종',      on:true, type:'data', span:1 }
 ];
 
 var PATIENT_B = {
-  dx: {
-    tracked: ['hypo','ra','gerd'],
+  note: {
+    tracked: ['smoke','alcohol','exercise','weight','family'],
     available: [
-      { id:'hypo', name:'갑상선기능저하증', meta:'6년째', since:'2020년', visits:18, lastVisit:'25.04.10' },
-      { id:'ra',   name:'류마티스 관절염',  meta:'3년째', since:'2023년', visits:12, lastVisit:'25.03.20' },
-      { id:'gerd', name:'위식도역류병',     meta:'2년째', since:'2024년', visits:5,  lastVisit:'25.02.14' },
-      { id:'htn',  name:'본태성 고혈압',    meta:'2년째', since:'2024년', visits:3,  lastVisit:'25.01.15' },
-      { id:'lip',  name:'이상지질혈증',     meta:'3년째', since:'2023년', visits:6,  lastVisit:'24.10.05' }
+      { id:'smoke',    badge:'흡연',    content:'비흡연',                                        updated:'25.04.10' },
+      { id:'alcohol',  badge:'음주',    content:'주 1회 와인 1잔',                                updated:'25.04.10' },
+      { id:'exercise', badge:'운동',    content:'주 2~3회 요가',                                  updated:'25.03.20' },
+      { id:'weight',   badge:'체중',    content:'25년 들어 점진 증가 (~3kg)',                     updated:'25.04.10' },
+      { id:'family',   badge:'가족력',  content:'모 갑상선기능저하증, 부 류마티스 관절염',          updated:'24.05.20' },
+      { id:'job',      badge:'직업력',  content:'',                                              updated:null }
     ]
   },
-  meds: {
-    tracked: ['levo','pred','mtx'],
-    available: [
-      { id:'levo',  name:'레보티록신',     dose:'100mcg 1T/day',   since:'20년~',     history:'50mcg → 100mcg 증량 (22.06)' },
-      { id:'pred',  name:'프레드니솔론',   dose:'5mg → 2.5mg',     since:'25년 4월~', history:'tapering 중 (5mg → 2.5mg, 25.04)', isTapering:true },
-      { id:'mtx',   name:'메토트렉세이트', dose:'7.5mg/week',      since:'23년~',     history:'7.5mg/week 유지' },
-      { id:'esome', name:'에소메프라졸',   dose:'20mg 1T/day',     since:'24년~',     history:'20mg 유지' }
+  dxMeds: {
+    showCount: 3,
+    diagnoses: [
+      { id:'hypo', name:'갑상선기능저하증', meta:'6년째', since:'2020년', visits:18, lastVisit:'25.04.10',
+        meds: [
+          { id:'levo', name:'레보티록신', dose:'100mcg 1T/day', since:'20년~', history:'50mcg → 100mcg 증량 (22.06)' }
+        ] },
+      { id:'ra',   name:'류마티스 관절염', meta:'3년째', since:'2023년', visits:12, lastVisit:'25.03.20',
+        meds: [
+          { id:'pred', name:'프레드니솔론', dose:'5mg → 2.5mg', since:'25년 4월~', history:'tapering 중 (5mg → 2.5mg, 25.04)', isTapering:true },
+          { id:'mtx',  name:'메토트렉세이트', dose:'7.5mg/week', since:'23년~',     history:'7.5mg/week 유지' }
+        ] },
+      { id:'gerd', name:'위식도역류병', meta:'2년째', since:'2024년', visits:5,  lastVisit:'25.02.14',
+        meds: [] },
+      { id:'htn',  name:'본태성 고혈압', meta:'2년째', since:'2024년', visits:3,  lastVisit:'25.01.15',
+        meds: [] },
+      { id:'lip',  name:'이상지질혈증',  meta:'3년째', since:'2023년', visits:6,  lastVisit:'24.10.05',
+        meds: [] }
     ]
   },
   obs: {
@@ -2082,8 +2148,8 @@ function renderWidgetsB() {
 
 function widgetIconB(id) {
   var icons = {
-    dx:    '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v8M8 12h8"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg>',
-    meds:  '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></svg>',
+    note:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
+    dxmeds: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg>',
     obs:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
     vital: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
     lab:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.5L4.7 20.6A1 1 0 0 0 5.6 22h12.8a1 1 0 0 0 .9-1.4L14 9.5V2"/><path d="M8.5 2h7M7 16h10"/></svg>',
@@ -2096,13 +2162,13 @@ function widgetIconB(id) {
 function renderWidgetB(w) {
   var body = '';
   switch (w.id) {
-    case 'dx':    body = renderWidgetDx(); break;
-    case 'meds':  body = renderWidgetMeds(); break;
-    case 'obs':   body = renderWidgetObs(); break;
-    case 'vital': body = renderWidgetVital(); break;
-    case 'lab':   body = renderWidgetLab(); break;
-    case 'proc':  body = renderWidgetProc(); break;
-    case 'vac':   body = renderWidgetVac(); break;
+    case 'note':   body = renderWidgetNote(); break;
+    case 'dxmeds': body = renderWidgetDxMeds(); break;
+    case 'obs':    body = renderWidgetObs(); break;
+    case 'vital':  body = renderWidgetVital(); break;
+    case 'lab':    body = renderWidgetLab(); break;
+    case 'proc':   body = renderWidgetProc(); break;
+    case 'vac':    body = renderWidgetVac(); break;
   }
   var isAi = w.type === 'ai';
   var spanClass = w.span === 2 ? ' span-2' : '';
@@ -2123,34 +2189,46 @@ function colorize(val, colorClass) {
   return colorClass ? '<span class="val-' + colorClass + '">' + val + '</span>' : val;
 }
 
-function renderWidgetDx() {
-  var dx = PATIENT_B.dx;
-  var chips = dx.tracked.map(function(tid) {
-    var it = dx.available.find(function(a){ return a.id === tid; });
-    if (!it) return '';
-    return '<span class="w-chip" onclick="showWidgetDetail(\'dx\',\'' + tid + '\', this)">' +
-      '<span class="w-chip-name">' + it.name + '</span>' +
-      '<span class="w-chip-meta">· ' + it.meta + '</span>' +
-    '</span>';
-  }).join('');
-  return '<div class="w-chips">' + (chips || '<div class="w-empty">추적 중인 상병 없음</div>') + '</div>' +
-         '<div class="w-detail hidden" id="detail-dx"></div>';
+function renderWidgetNote() {
+  var note = PATIENT_B.note;
+  var rows = note.tracked
+    .map(function(tid){ return note.available.find(function(a){ return a.id === tid; }); })
+    .filter(function(it){ return it && it.content && it.content.length > 0; })
+    .map(function(it) {
+      return '<div class="w-note-row" onclick="showWidgetDetail(\'note\',\'' + it.id + '\', this)">' +
+        '<span class="w-badge">' + it.badge + '</span>' +
+        '<span class="w-note-content">' + it.content + '</span>' +
+      '</div>';
+    }).join('');
+  return (rows || '<div class="w-empty">기록된 메모 없음</div>') +
+         '<div class="w-detail hidden" id="detail-note"></div>';
 }
 
-function renderWidgetMeds() {
-  var meds = PATIENT_B.meds;
-  var rows = meds.tracked.map(function(tid) {
-    var it = meds.available.find(function(a){ return a.id === tid; });
-    if (!it) return '';
-    var taperingPill = it.isTapering ? ' <span class="ai-pill">tapering</span>' : '';
-    return '<div class="w-row" onclick="showWidgetDetail(\'meds\',\'' + tid + '\', this)">' +
-      '<span class="w-row-name">' + it.name + ' ' + it.dose + '</span>' +
-      taperingPill +
-      '<span class="w-row-meta">· ' + it.since + '</span>' +
+function renderWidgetDxMeds() {
+  var dm = PATIENT_B.dxMeds;
+  var diagnoses = dm.diagnoses.slice(0, dm.showCount);
+  if (!diagnoses.length) return '<div class="w-empty">추적 중인 상병 없음</div>';
+  var html = diagnoses.map(function(dx) {
+    var head = '<div class="w-dx-head" onclick="showWidgetDetail(\'dxmeds\',\'dx-' + dx.id + '\', this)">' +
+      '<span class="w-dx-name">' + dx.name + '</span>' +
+      '<span class="w-dx-meta">· ' + dx.meta + '</span>' +
     '</div>';
+    var medsHtml;
+    if (dx.meds.length) {
+      medsHtml = '<div class="w-dx-meds">' + dx.meds.map(function(m) {
+        var taperingPill = m.isTapering ? ' <span class="ai-pill">tapering</span>' : '';
+        return '<div class="w-dx-med" onclick="showWidgetDetail(\'dxmeds\',\'med-' + m.id + '\', this)">' +
+          '<span class="w-dx-med-name">' + m.name + ' ' + m.dose + '</span>' +
+          taperingPill +
+          '<span class="w-dx-med-meta">· ' + m.since + '</span>' +
+        '</div>';
+      }).join('') + '</div>';
+    } else {
+      medsHtml = '<div class="w-dx-empty">장기복용약 없음</div>';
+    }
+    return '<div class="w-dx-group">' + head + medsHtml + '</div>';
   }).join('');
-  return (rows || '<div class="w-empty">추적 중인 약물 없음</div>') +
-         '<div class="w-detail hidden" id="detail-meds"></div>';
+  return html + '<div class="w-detail hidden" id="detail-dxmeds"></div>';
 }
 
 function renderWidgetObs() {
@@ -2247,16 +2325,32 @@ function showWidgetDetail(widgetId, itemId, sourceEl) {
 function buildDetailHtml(widgetId, itemId) {
   var it;
   switch (widgetId) {
-    case 'dx':
-      it = PATIENT_B.dx.available.find(function(a){ return a.id === itemId; });
-      return '<div class="w-detail-row"><span>최초 등록</span><span>' + it.since + ' (' + it.meta + ')</span></div>' +
-             '<div class="w-detail-row"><span>최근 진료</span><span>' + it.lastVisit + '</span></div>' +
-             '<div class="w-detail-row"><span>누적 진료</span><span>' + it.visits + '회</span></div>';
-    case 'meds':
-      it = PATIENT_B.meds.available.find(function(a){ return a.id === itemId; });
-      return '<div class="w-detail-row"><span>용량</span><span>' + it.dose + '</span></div>' +
-             '<div class="w-detail-row"><span>시작</span><span>' + it.since + '</span></div>' +
-             '<div class="w-detail-row"><span>처방 이력</span><span>' + it.history + '</span></div>';
+    case 'note':
+      it = PATIENT_B.note.available.find(function(a){ return a.id === itemId; });
+      return '<div class="w-detail-row"><span>카테고리</span><span>' + it.badge + '</span></div>' +
+             '<div class="w-detail-row"><span>내용</span><span>' + (it.content || '(비어 있음)') + '</span></div>' +
+             '<div class="w-detail-row"><span>최근 업데이트</span><span>' + (it.updated || '없음') + '</span></div>';
+    case 'dxmeds':
+      if (itemId.indexOf('dx-') === 0) {
+        var dxId = itemId.slice(3);
+        it = PATIENT_B.dxMeds.diagnoses.find(function(d){ return d.id === dxId; });
+        return '<div class="w-detail-row"><span>최초 등록</span><span>' + it.since + ' (' + it.meta + ')</span></div>' +
+               '<div class="w-detail-row"><span>최근 진료</span><span>' + it.lastVisit + '</span></div>' +
+               '<div class="w-detail-row"><span>누적 진료</span><span>' + it.visits + '회</span></div>' +
+               '<div class="w-detail-row"><span>관련 처방</span><span>' + (it.meds.length ? it.meds.length + '건' : '없음') + '</span></div>';
+      } else if (itemId.indexOf('med-') === 0) {
+        var medId = itemId.slice(4);
+        var med = null;
+        PATIENT_B.dxMeds.diagnoses.some(function(d){
+          var found = d.meds.find(function(m){ return m.id === medId; });
+          if (found) { med = found; return true; } return false;
+        });
+        if (!med) return '';
+        return '<div class="w-detail-row"><span>용량</span><span>' + med.dose + '</span></div>' +
+               '<div class="w-detail-row"><span>시작</span><span>' + med.since + '</span></div>' +
+               '<div class="w-detail-row"><span>처방 이력</span><span>' + med.history + '</span></div>';
+      }
+      return '';
     case 'obs':
       it = PATIENT_B.obs.items.find(function(a){ return a.id === itemId; });
       return '<div class="w-detail-quote">' + it.quote + '</div>' +
@@ -2303,11 +2397,15 @@ function buildDetailHtml(widgetId, itemId) {
 function renderWidgetSettings(widgetId) {
   var content = '';
   switch (widgetId) {
-    case 'dx':
-      content = settingsChecklist('dx', '표시할 상병 선택', PATIENT_B.dx.available, PATIENT_B.dx.tracked, 'name', 'meta');
+    case 'note':
+      content = settingsChecklist('note', '표시할 임상메모 카테고리', PATIENT_B.note.available, PATIENT_B.note.tracked, 'badge', 'content');
       break;
-    case 'meds':
-      content = settingsChecklist('meds', '표시할 약물 선택 (30일+ 자동 매칭)', PATIENT_B.meds.available, PATIENT_B.meds.tracked, 'name', 'dose');
+    case 'dxmeds':
+      content = '<div class="w-settings-title">표시 개수</div>' +
+        '<div class="w-settings-options">' +
+          '<label class="w-settings-option"><input type="radio" name="dxmedsCount" value="3" ' + (PATIENT_B.dxMeds.showCount === 3 ? 'checked' : '') + '> Top 3</label>' +
+          '<label class="w-settings-option"><input type="radio" name="dxmedsCount" value="5" ' + (PATIENT_B.dxMeds.showCount === 5 ? 'checked' : '') + '> Top 5</label>' +
+        '</div>';
       break;
     case 'obs':
       content = '<div class="w-settings-title">AI 추출 설정</div>' +
@@ -2374,7 +2472,10 @@ function toggleWidgetSettings(widgetId, btnEl) {
 function applyWidgetSettings(widgetId) {
   var panel = document.getElementById('settings-' + widgetId);
   if (!panel) return;
-  if (widgetId === 'obs') {
+  if (widgetId === 'dxmeds') {
+    var radio = panel.querySelector('input[name="dxmedsCount"]:checked');
+    if (radio) PATIENT_B.dxMeds.showCount = parseInt(radio.value);
+  } else if (widgetId === 'obs') {
     var onCb = panel.querySelector('input[data-obs-on]');
     if (onCb) PATIENT_B.obs.on = onCb.checked;
     panel.querySelectorAll('input[data-obs-cat]').forEach(function(cb) {
@@ -2410,12 +2511,17 @@ function closeWidgetMgmt() {
 function renderWidgetMgmt() {
   var list = document.getElementById('widgetMgmtList');
   list.innerHTML = widgetMgmtDraft.map(function(w, idx) {
-    return '<div class="w-mgmt-row' + (w.on ? '' : ' off') + '">' +
-      '<span class="w-mgmt-handle">≡</span>' +
+    var prev = widgetMgmtDraft[idx - 1];
+    var upDisabled = idx === 0 || w.pinned || (prev && prev.pinned);
+    var downDisabled = idx === widgetMgmtDraft.length - 1 || w.pinned;
+    return '<div class="w-mgmt-row' + (w.on ? '' : ' off') + (w.pinned ? ' pinned' : '') + '">' +
+      (w.pinned
+        ? '<span class="w-mgmt-pin" title="고정 위치">&#9776;</span>'
+        : '<span class="w-mgmt-handle">&equiv;</span>') +
       '<span class="w-mgmt-name">' + w.title + '</span>' +
       '<div class="w-mgmt-reorder">' +
-        '<button onclick="reorderWidgetMgmt(' + idx + ',-1)"' + (idx === 0 ? ' disabled' : '') + '>↑</button>' +
-        '<button onclick="reorderWidgetMgmt(' + idx + ',1)"' + (idx === widgetMgmtDraft.length - 1 ? ' disabled' : '') + '>↓</button>' +
+        '<button onclick="reorderWidgetMgmt(' + idx + ',-1)"' + (upDisabled ? ' disabled' : '') + '>&uarr;</button>' +
+        '<button onclick="reorderWidgetMgmt(' + idx + ',1)"' + (downDisabled ? ' disabled' : '') + '>&darr;</button>' +
       '</div>' +
       '<span class="w-mgmt-toggle' + (w.on ? ' on' : '') + '" onclick="toggleWidgetMgmtRow(' + idx + ')"></span>' +
     '</div>';
@@ -2425,9 +2531,11 @@ function renderWidgetMgmt() {
 function reorderWidgetMgmt(idx, dir) {
   var ni = idx + dir;
   if (ni < 0 || ni >= widgetMgmtDraft.length) return;
-  var tmp = widgetMgmtDraft[idx];
-  widgetMgmtDraft[idx] = widgetMgmtDraft[ni];
-  widgetMgmtDraft[ni] = tmp;
+  var moving = widgetMgmtDraft[idx];
+  var target = widgetMgmtDraft[ni];
+  if (moving.pinned || target.pinned) return;
+  widgetMgmtDraft[idx] = target;
+  widgetMgmtDraft[ni] = moving;
   renderWidgetMgmt();
 }
 
@@ -2437,7 +2545,9 @@ function toggleWidgetMgmtRow(idx) {
 }
 
 function applyWidgetMgmt() {
-  WIDGETS_B_CONFIG = widgetMgmtDraft.map(function(w){ return Object.assign({}, w); });
+  var pinned = widgetMgmtDraft.filter(function(w){ return w.pinned; });
+  var rest   = widgetMgmtDraft.filter(function(w){ return !w.pinned; });
+  WIDGETS_B_CONFIG = pinned.concat(rest).map(function(w){ return Object.assign({}, w); });
   closeWidgetMgmt();
   renderWidgetsB();
 }
