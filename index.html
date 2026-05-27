@@ -655,9 +655,13 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
 }
 .w-note-content { color: #374151; flex: 1; min-width: 0; }
 
-/* 상병별 처방 그루핑 */
-.w-dx-group { padding: 3px 0; }
-.w-dx-group + .w-dx-group { border-top: 1px dashed #F3F4F6; margin-top: 2px; padding-top: 5px; }
+/* 상병별 처방·관찰 그루핑 */
+.w-dx-group { padding: 4px 2px; }
+.w-dx-group + .w-dx-group {
+  border-top: 1px solid #E5E7EB;
+  margin-top: 4px; padding-top: 6px;
+}
+.w-dx-group-misc { background: #FAFAFA; border-radius: 4px; }
 .w-dx-head {
   display: flex; align-items: baseline; gap: 4px;
   padding: 1px 4px; cursor: pointer; border-radius: 3px;
@@ -665,24 +669,63 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
 }
 .w-dx-head:hover { background: #F9FAFB; }
 .w-dx-head.active { background: #F3E8FF; }
+.w-dx-head-misc { cursor: default; }
+.w-dx-head-misc:hover { background: transparent; }
 .w-dx-name { color: #111827; font-weight: 600; }
+.w-dx-group-misc .w-dx-name { color: #6B7280; font-weight: 500; font-style: italic; }
 .w-dx-meta { color: #6B7280; font-size: 10px; }
-.w-dx-meds { padding-left: 12px; margin-top: 1px; }
-.w-dx-med {
+.w-dx-meds { padding-left: 12px; margin-top: 2px; display: flex; flex-direction: column; gap: 1px; }
+.w-dx-prefix {
+  display: inline-block; flex-shrink: 0;
+  padding: 0 4px; height: 13px; line-height: 13px;
+  border-radius: 2px; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.03em;
+  background: #ECFEFF; color: #155E75;
+}
+.w-dx-prefix.obs { background: #F5F3FF; color: #7C3AED; }
+.w-dx-med, .w-dx-obs {
   display: flex; align-items: baseline; gap: 4px;
   padding: 1px 4px; font-size: 10.5px; color: #4B5563;
-  cursor: pointer; border-radius: 3px;
-  position: relative; line-height: 1.45;
+  cursor: pointer; border-radius: 3px; line-height: 1.45;
 }
 .w-dx-med:hover { background: #F9FAFB; }
-.w-dx-med.active { background: #F3E8FF; }
-.w-dx-med::before {
-  content: '·'; color: #9CA3AF; margin-right: 2px; flex-shrink: 0;
-}
+.w-dx-obs:hover { background: #FAF5FF; }
+.w-dx-med.active, .w-dx-obs.active { background: #F3E8FF; }
 .w-dx-med-name { color: #111827; font-weight: 500; }
 .w-dx-med-meta { color: #9CA3AF; font-size: 9.5px; }
+.w-dx-obs-name { color: #6D28D9; font-weight: 500; }
+.w-dx-obs-meta { color: #9CA3AF; font-size: 9.5px; }
 .w-dx-empty {
   padding: 2px 0 2px 12px; font-size: 10px; color: #9CA3AF; font-style: italic;
+}
+
+/* Vital/검사 미니 표 (항목별) */
+.w-mini-item {
+  padding: 4px 6px; margin-bottom: 4px;
+  cursor: pointer; border-radius: 4px;
+}
+.w-mini-item:last-child { margin-bottom: 0; }
+.w-mini-item:hover { background: #F9FAFB; }
+.w-mini-item.active { background: #F3E8FF; }
+.w-mini-item-name {
+  display: flex; align-items: baseline; gap: 4px;
+  font-size: 10.5px; font-weight: 600; color: #111827;
+  margin-bottom: 2px;
+}
+.w-mt-unit { color: #9CA3AF; font-size: 9px; font-weight: 400; }
+.w-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.w-mini-table tr.dates td {
+  color: #9CA3AF; font-size: 9px; text-align: center;
+  padding: 1px 4px; white-space: nowrap;
+  border-bottom: 1px solid #F3F4F6;
+}
+.w-mini-table tr.vals td {
+  color: #374151; font-size: 10.5px; text-align: center;
+  padding: 2px 4px; white-space: nowrap;
 }
 
 /* Pin 표시 (위젯 매니지먼트) */
@@ -2021,13 +2064,12 @@ document.querySelectorAll('.visit-item').forEach(function(item) {
 
 /* ===== B안: 위젯형 요약 카드 ===== */
 var WIDGETS_B_CONFIG = [
-  { id:'note',   title:'임상메모 요약', on:true, type:'data', span:2, pinned:true },
-  { id:'dxmeds', title:'상병별 처방',   on:true, type:'data', span:1 },
-  { id:'obs',    title:'관찰 중',       on:true, type:'ai',   span:1 },
-  { id:'vital',  title:'Vital',         on:true, type:'data', span:2 },
-  { id:'lab',    title:'검사',          on:true, type:'data', span:2 },
-  { id:'proc',   title:'처치 / 주사',   on:true, type:'data', span:1 },
-  { id:'vac',    title:'예방접종',      on:true, type:'data', span:1 }
+  { id:'note',      title:'임상메모 요약',     on:true, type:'data', span:2, pinned:true },
+  { id:'dxmedsobs', title:'상병별 처방·관찰',  on:true, type:'data', span:2 },
+  { id:'vital',     title:'Vital',             on:true, type:'data', span:2 },
+  { id:'lab',       title:'검사',              on:true, type:'data', span:2 },
+  { id:'proc',      title:'처치 / 주사',       on:true, type:'data', span:1 },
+  { id:'vac',       title:'예방접종',          on:true, type:'data', span:1 }
 ];
 
 var PATIENT_B = {
@@ -2042,59 +2084,81 @@ var PATIENT_B = {
       { id:'job',      badge:'직업력',  content:'',                                              updated:null }
     ]
   },
-  dxMeds: {
+  dxMedsObs: {
     showCount: 3,
+    aiObsOn: true,
     diagnoses: [
       { id:'hypo', name:'갑상선기능저하증', meta:'6년째', since:'2020년', visits:18, lastVisit:'25.04.10',
         meds: [
           { id:'levo', name:'레보티록신', dose:'100mcg 1T/day', since:'20년~', history:'50mcg → 100mcg 증량 (22.06)' }
+        ],
+        observations: [
+          { id:'tremor', text:'손떨림 호소 증가', context:'24.11~ · TSH 과다억제 의심',
+            quote:'"손떨림 증상 심해짐, 글씨 쓰기 어려움 호소" — 24.11.20 진료기록', confidence:0.82 },
+          { id:'edema',  text:'야간 안면 부종 보고', context:'25.03~',
+            quote:'"아침 일어났을 때 얼굴 붓는 증상 반복" — 25.03.18 진료기록', confidence:0.71 }
         ] },
       { id:'ra',   name:'류마티스 관절염', meta:'3년째', since:'2023년', visits:12, lastVisit:'25.03.20',
         meds: [
           { id:'pred', name:'프레드니솔론', dose:'5mg → 2.5mg', since:'25년 4월~', history:'tapering 중 (5mg → 2.5mg, 25.04)', isTapering:true },
           { id:'mtx',  name:'메토트렉세이트', dose:'7.5mg/week', since:'23년~',     history:'7.5mg/week 유지' }
-        ] },
+        ],
+        observations: [] },
       { id:'gerd', name:'위식도역류병', meta:'2년째', since:'2024년', visits:5,  lastVisit:'25.02.14',
-        meds: [] },
+        meds: [], observations: [] },
       { id:'htn',  name:'본태성 고혈압', meta:'2년째', since:'2024년', visits:3,  lastVisit:'25.01.15',
-        meds: [] },
+        meds: [], observations: [] },
       { id:'lip',  name:'이상지질혈증',  meta:'3년째', since:'2023년', visits:6,  lastVisit:'24.10.05',
-        meds: [] }
-    ]
-  },
-  obs: {
-    on: true,
-    categories: { sideeffect:true, symptom:true, lifestyle:false },
-    items: [
-      { id:'tremor', text:'손떨림 호소 증가', context:'24.11~ · TSH 과다억제 의심',
-        quote:'"손떨림 증상 심해짐, 글씨 쓰기 어려움 호소" — 24.11.20 진료기록',
-        confidence:0.82, category:'symptom' },
-      { id:'edema',  text:'야간 안면 부종 보고', context:'25.03~',
-        quote:'"아침 일어났을 때 얼굴 붓는 증상 반복" — 25.03.18 진료기록',
-        confidence:0.71, category:'symptom' }
-    ]
+        meds: [], observations: [] }
+    ],
+    unmappedObservations: []
   },
   vital: {
     tracked: ['bp','bw','hr'],
-    dates: ['24.10','25.01','25.03','25.04','25.05'],
     available: [
-      { id:'bp',   key:'BP',   unit:'',     vals:['118/76','120/78','122/80','119/77','121/79'], colors:['','','','',''], normal:'< 130/80 mmHg' },
-      { id:'bw',   key:'BW',   unit:'kg',   vals:['58.4','58.9','59.3','60.1','61.2'],          colors:['','','','',''], normal:'개별 기준' },
-      { id:'hr',   key:'HR',   unit:'bpm',  vals:['92','88','85','82','80'],                    colors:['','','','',''], normal:'60 - 100 bpm' },
-      { id:'spo2', key:'SpO2', unit:'%',    vals:['98','98','97','98','98'],                    colors:['','','','',''], normal:'≥ 95 %' },
-      { id:'bt',   key:'BT',   unit:'°C',   vals:['36.5','36.4','36.6','36.5','36.5'],          colors:['','','','',''], normal:'36.0 - 37.5 °C' }
+      { id:'bp',   key:'BP',   unit:'',
+        dates:['24.10','25.01','25.03','25.04','25.05'],
+        vals:['118/76','120/78','122/80','119/77','121/79'],
+        colors:['','','','',''], normal:'< 130/80 mmHg' },
+      { id:'bw',   key:'BW',   unit:'kg',
+        dates:['24.10','25.03','25.05'],
+        vals:['58.4','59.3','61.2'],
+        colors:['','',''], normal:'개별 기준' },
+      { id:'hr',   key:'HR',   unit:'bpm',
+        dates:['24.10','25.01','25.04','25.05'],
+        vals:['92','88','82','80'],
+        colors:['','','',''], normal:'60 - 100 bpm' },
+      { id:'spo2', key:'SpO2', unit:'%',
+        dates:['24.10','25.03','25.05'],
+        vals:['98','97','98'],
+        colors:['','',''], normal:'≥ 95 %' },
+      { id:'bt',   key:'BT',   unit:'°C',
+        dates:['25.01','25.05'],
+        vals:['36.5','36.5'],
+        colors:['',''], normal:'36.0 - 37.5 °C' }
     ]
   },
   lab: {
     tracked: ['tsh','t4'],
-    dates: ['24.04','24.10','25.04'],
     available: [
-      { id:'tsh',   key:'TSH',     unit:'mIU/L',      vals:['0.05','0.12','0.45'], colors:['low','low',''], normal:'0.4 - 4.0 mIU/L' },
-      { id:'t4',    key:'Free T4', unit:'ng/dL',      vals:['1.8','1.5','1.3'],    colors:['','',''],       normal:'0.8 - 1.8 ng/dL' },
-      { id:'hba1c', key:'HbA1c',   unit:'%',          vals:['5.7','5.8','5.6'],    colors:['','',''],       normal:'< 5.7 %' },
-      { id:'ldl',   key:'LDL',     unit:'mg/dL',      vals:['135','128','118'],    colors:['high','',''],   normal:'< 130 mg/dL' },
-      { id:'cr',    key:'Cr',      unit:'mg/dL',      vals:['0.9','0.95','1.0'],   colors:['','',''],       normal:'0.7 - 1.3 mg/dL' },
-      { id:'egfr',  key:'eGFR',    unit:'mL/min',     vals:['82','78','75'],       colors:['','',''],       normal:'≥ 60 mL/min/1.73m²' }
+      { id:'tsh',   key:'TSH',     unit:'mIU/L',
+        dates:['24.04','24.10','25.04'],
+        vals:['0.05','0.12','0.45'], colors:['low','low',''], normal:'0.4 - 4.0 mIU/L' },
+      { id:'t4',    key:'Free T4', unit:'ng/dL',
+        dates:['24.04','24.10','25.04'],
+        vals:['1.8','1.5','1.3'],    colors:['','',''],       normal:'0.8 - 1.8 ng/dL' },
+      { id:'hba1c', key:'HbA1c',   unit:'%',
+        dates:['24.04','25.04'],
+        vals:['5.7','5.8'],          colors:['',''],          normal:'< 5.7 %' },
+      { id:'ldl',   key:'LDL',     unit:'mg/dL',
+        dates:['24.04','25.04'],
+        vals:['135','118'],          colors:['high',''],      normal:'< 130 mg/dL' },
+      { id:'cr',    key:'Cr',      unit:'mg/dL',
+        dates:['24.04','24.10','25.04'],
+        vals:['0.9','0.95','1.0'],   colors:['','',''],       normal:'0.7 - 1.3 mg/dL' },
+      { id:'egfr',  key:'eGFR',    unit:'mL/min',
+        dates:['24.04','24.10','25.04'],
+        vals:['82','78','75'],       colors:['','',''],       normal:'≥ 60 mL/min/1.73m²' }
     ]
   },
   proc: {
@@ -2148,13 +2212,12 @@ function renderWidgetsB() {
 
 function widgetIconB(id) {
   var icons = {
-    note:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
-    dxmeds: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg>',
-    obs:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
-    vital: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-    lab:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.5L4.7 20.6A1 1 0 0 0 5.6 22h12.8a1 1 0 0 0 .9-1.4L14 9.5V2"/><path d="M8.5 2h7M7 16h10"/></svg>',
-    proc:  '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4-11.5 11.5L7 18l-3 3-1-1 3-3 .5-3.5z"/></svg>',
-    vac:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
+    note:      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>',
+    dxmedsobs: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="13" y2="14"/></svg>',
+    vital:     '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+    lab:       '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 2v7.5L4.7 20.6A1 1 0 0 0 5.6 22h12.8a1 1 0 0 0 .9-1.4L14 9.5V2"/><path d="M8.5 2h7M7 16h10"/></svg>',
+    proc:      '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 2 4 4-11.5 11.5L7 18l-3 3-1-1 3-3 .5-3.5z"/></svg>',
+    vac:       '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>'
   };
   return icons[id] || '';
 }
@@ -2162,13 +2225,12 @@ function widgetIconB(id) {
 function renderWidgetB(w) {
   var body = '';
   switch (w.id) {
-    case 'note':   body = renderWidgetNote(); break;
-    case 'dxmeds': body = renderWidgetDxMeds(); break;
-    case 'obs':    body = renderWidgetObs(); break;
-    case 'vital':  body = renderWidgetVital(); break;
-    case 'lab':    body = renderWidgetLab(); break;
-    case 'proc':   body = renderWidgetProc(); break;
-    case 'vac':    body = renderWidgetVac(); break;
+    case 'note':      body = renderWidgetNote(); break;
+    case 'dxmedsobs': body = renderWidgetDxMedsObs(); break;
+    case 'vital':     body = renderWidgetVital(); break;
+    case 'lab':       body = renderWidgetLab(); break;
+    case 'proc':      body = renderWidgetProc(); break;
+    case 'vac':       body = renderWidgetVac(); break;
   }
   var isAi = w.type === 'ai';
   var spanClass = w.span === 2 ? ' span-2' : '';
@@ -2204,74 +2266,80 @@ function renderWidgetNote() {
          '<div class="w-detail hidden" id="detail-note"></div>';
 }
 
-function renderWidgetDxMeds() {
-  var dm = PATIENT_B.dxMeds;
-  var diagnoses = dm.diagnoses.slice(0, dm.showCount);
-  if (!diagnoses.length) return '<div class="w-empty">추적 중인 상병 없음</div>';
-  var html = diagnoses.map(function(dx) {
-    var head = '<div class="w-dx-head" onclick="showWidgetDetail(\'dxmeds\',\'dx-' + dx.id + '\', this)">' +
+function renderWidgetDxMedsObs() {
+  var dmo = PATIENT_B.dxMedsObs;
+  var diagnoses = dmo.diagnoses.slice(0, dmo.showCount);
+  var blocks = diagnoses.map(function(dx) {
+    var head = '<div class="w-dx-head" onclick="showWidgetDetail(\'dxmedsobs\',\'dx-' + dx.id + '\', this)">' +
       '<span class="w-dx-name">' + dx.name + '</span>' +
       '<span class="w-dx-meta">· ' + dx.meta + '</span>' +
     '</div>';
-    var medsHtml;
-    if (dx.meds.length) {
-      medsHtml = '<div class="w-dx-meds">' + dx.meds.map(function(m) {
-        var taperingPill = m.isTapering ? ' <span class="ai-pill">tapering</span>' : '';
-        return '<div class="w-dx-med" onclick="showWidgetDetail(\'dxmeds\',\'med-' + m.id + '\', this)">' +
-          '<span class="w-dx-med-name">' + m.name + ' ' + m.dose + '</span>' +
-          taperingPill +
-          '<span class="w-dx-med-meta">· ' + m.since + '</span>' +
-        '</div>';
-      }).join('') + '</div>';
-    } else {
-      medsHtml = '<div class="w-dx-empty">장기복용약 없음</div>';
+    var lines = [];
+    dx.meds.forEach(function(m) {
+      var pill = m.isTapering ? ' <span class="ai-pill">tapering</span>' : '';
+      lines.push('<div class="w-dx-med" onclick="showWidgetDetail(\'dxmedsobs\',\'med-' + m.id + '\', this)">' +
+        '<span class="w-dx-prefix">약</span>' +
+        '<span class="w-dx-med-name">' + m.name + ' ' + m.dose + '</span>' + pill +
+        '<span class="w-dx-med-meta">· ' + m.since + '</span>' +
+      '</div>');
+    });
+    if (dmo.aiObsOn) {
+      dx.observations.forEach(function(ob) {
+        lines.push('<div class="w-dx-obs" onclick="showWidgetDetail(\'dxmedsobs\',\'obs-' + ob.id + '\', this)">' +
+          '<span class="w-dx-prefix obs">관찰</span>' +
+          '<span class="w-dx-obs-name">' + ob.text + '</span>' +
+          '<span class="w-dx-obs-meta">· ' + ob.context + '</span>' +
+        '</div>');
+      });
     }
-    return '<div class="w-dx-group">' + head + medsHtml + '</div>';
-  }).join('');
-  return html + '<div class="w-detail hidden" id="detail-dxmeds"></div>';
-}
-
-function renderWidgetObs() {
-  var obs = PATIENT_B.obs;
-  if (!obs.on || !obs.items.length) {
-    return '<div class="w-empty">관찰 중인 항목 없음</div>';
+    var body = lines.length
+      ? '<div class="w-dx-meds">' + lines.join('') + '</div>'
+      : '<div class="w-dx-empty">장기복용약·관찰 없음</div>';
+    return '<div class="w-dx-group">' + head + body + '</div>';
+  });
+  if (dmo.aiObsOn && dmo.unmappedObservations && dmo.unmappedObservations.length) {
+    var miscLines = dmo.unmappedObservations.map(function(ob) {
+      return '<div class="w-dx-obs" onclick="showWidgetDetail(\'dxmedsobs\',\'obs-' + ob.id + '\', this)">' +
+        '<span class="w-dx-prefix obs">관찰</span>' +
+        '<span class="w-dx-obs-name">' + ob.text + '</span>' +
+        '<span class="w-dx-obs-meta">· ' + ob.context + '</span>' +
+      '</div>';
+    }).join('');
+    blocks.push('<div class="w-dx-group w-dx-group-misc">' +
+      '<div class="w-dx-head w-dx-head-misc"><span class="w-dx-name">기타 관찰</span></div>' +
+      '<div class="w-dx-meds">' + miscLines + '</div>' +
+    '</div>');
   }
-  var rows = obs.items.filter(function(it) {
-    return obs.categories[it.category];
-  }).map(function(it) {
-    return '<div class="w-row ai-row" onclick="showWidgetDetail(\'obs\',\'' + it.id + '\', this)">' +
-      '<span class="w-row-name">' + it.text + '</span>' +
-      '<span class="w-row-meta">· ' + it.context + '</span>' +
-    '</div>';
-  }).join('');
-  return (rows || '<div class="w-empty">설정된 카테고리에 해당하는 항목 없음</div>') +
-         '<div class="w-detail hidden" id="detail-obs"></div>';
+  return (blocks.join('') || '<div class="w-empty">추적 항목 없음</div>') +
+         '<div class="w-detail hidden" id="detail-dxmedsobs"></div>';
 }
 
 function renderWidgetVital() {
   var v = PATIENT_B.vital;
-  var tracked = v.tracked.map(function(tid){ return v.available.find(function(a){ return a.id === tid; }); }).filter(Boolean);
-  if (!tracked.length) return '<div class="w-empty">추적 항목 없음</div>';
-  return renderHTable('vital', v.dates, tracked) +
+  var items = v.tracked.map(function(tid){ return v.available.find(function(a){ return a.id === tid; }); }).filter(Boolean);
+  if (!items.length) return '<div class="w-empty">추적 항목 없음</div>';
+  return items.map(function(it){ return renderMiniTable('vital', it); }).join('') +
          '<div class="w-detail hidden" id="detail-vital"></div>';
 }
 
 function renderWidgetLab() {
   var lab = PATIENT_B.lab;
-  var tracked = lab.tracked.map(function(tid){ return lab.available.find(function(a){ return a.id === tid; }); }).filter(Boolean);
-  if (!tracked.length) return '<div class="w-empty">추적 검사 없음</div>';
-  return renderHTable('lab', lab.dates, tracked) +
+  var items = lab.tracked.map(function(tid){ return lab.available.find(function(a){ return a.id === tid; }); }).filter(Boolean);
+  if (!items.length) return '<div class="w-empty">추적 검사 없음</div>';
+  return items.map(function(it){ return renderMiniTable('lab', it); }).join('') +
          '<div class="w-detail hidden" id="detail-lab"></div>';
 }
 
-function renderHTable(widgetId, dates, items) {
-  var th = '<tr><th></th>' + dates.map(function(d){ return '<th>' + d + '</th>'; }).join('') + '</tr>';
-  var rows = items.map(function(it) {
-    var keyCell = '<td>' + it.key + (it.unit ? '<span class="w-td-unit">' + it.unit + '</span>' : '') + '</td>';
-    var valCells = it.vals.map(function(v, i){ return '<td>' + colorize(v, it.colors[i]) + '</td>'; }).join('');
-    return '<tr onclick="showWidgetDetail(\'' + widgetId + '\',\'' + it.id + '\', this)">' + keyCell + valCells + '</tr>';
-  }).join('');
-  return '<table class="w-data-table"><thead>' + th + '</thead><tbody>' + rows + '</tbody></table>';
+function renderMiniTable(widgetId, it) {
+  var dateCells = it.dates.map(function(d){ return '<td>' + d + '</td>'; }).join('');
+  var valCells  = it.vals.map(function(v, i){ return '<td>' + colorize(v, it.colors[i]) + '</td>'; }).join('');
+  return '<div class="w-mini-item" onclick="showWidgetDetail(\'' + widgetId + '\',\'' + it.id + '\', this)">' +
+    '<div class="w-mini-item-name">' + it.key + (it.unit ? '<span class="w-mt-unit">' + it.unit + '</span>' : '') + '</div>' +
+    '<table class="w-mini-table"><tbody>' +
+      '<tr class="dates">' + dateCells + '</tr>' +
+      '<tr class="vals">' + valCells + '</tr>' +
+    '</tbody></table>' +
+  '</div>';
 }
 
 function renderWidgetProc() {
@@ -2330,18 +2398,19 @@ function buildDetailHtml(widgetId, itemId) {
       return '<div class="w-detail-row"><span>카테고리</span><span>' + it.badge + '</span></div>' +
              '<div class="w-detail-row"><span>내용</span><span>' + (it.content || '(비어 있음)') + '</span></div>' +
              '<div class="w-detail-row"><span>최근 업데이트</span><span>' + (it.updated || '없음') + '</span></div>';
-    case 'dxmeds':
+    case 'dxmedsobs':
       if (itemId.indexOf('dx-') === 0) {
         var dxId = itemId.slice(3);
-        it = PATIENT_B.dxMeds.diagnoses.find(function(d){ return d.id === dxId; });
+        it = PATIENT_B.dxMedsObs.diagnoses.find(function(d){ return d.id === dxId; });
         return '<div class="w-detail-row"><span>최초 등록</span><span>' + it.since + ' (' + it.meta + ')</span></div>' +
                '<div class="w-detail-row"><span>최근 진료</span><span>' + it.lastVisit + '</span></div>' +
                '<div class="w-detail-row"><span>누적 진료</span><span>' + it.visits + '회</span></div>' +
-               '<div class="w-detail-row"><span>관련 처방</span><span>' + (it.meds.length ? it.meds.length + '건' : '없음') + '</span></div>';
+               '<div class="w-detail-row"><span>관련 처방</span><span>' + (it.meds.length ? it.meds.length + '건' : '없음') + '</span></div>' +
+               '<div class="w-detail-row"><span>관련 관찰</span><span>' + (it.observations.length ? it.observations.length + '건' : '없음') + '</span></div>';
       } else if (itemId.indexOf('med-') === 0) {
         var medId = itemId.slice(4);
         var med = null;
-        PATIENT_B.dxMeds.diagnoses.some(function(d){
+        PATIENT_B.dxMedsObs.diagnoses.some(function(d){
           var found = d.meds.find(function(m){ return m.id === medId; });
           if (found) { med = found; return true; } return false;
         });
@@ -2349,18 +2418,26 @@ function buildDetailHtml(widgetId, itemId) {
         return '<div class="w-detail-row"><span>용량</span><span>' + med.dose + '</span></div>' +
                '<div class="w-detail-row"><span>시작</span><span>' + med.since + '</span></div>' +
                '<div class="w-detail-row"><span>처방 이력</span><span>' + med.history + '</span></div>';
+      } else if (itemId.indexOf('obs-') === 0) {
+        var obsId = itemId.slice(4);
+        var obs = null;
+        PATIENT_B.dxMedsObs.diagnoses.some(function(d){
+          var found = d.observations.find(function(o){ return o.id === obsId; });
+          if (found) { obs = found; return true; } return false;
+        });
+        if (!obs && PATIENT_B.dxMedsObs.unmappedObservations) {
+          obs = PATIENT_B.dxMedsObs.unmappedObservations.find(function(o){ return o.id === obsId; });
+        }
+        if (!obs) return '';
+        return '<div class="w-detail-quote">' + obs.quote + '</div>' +
+               '<div class="w-detail-row"><span>AI 신뢰도</span><span class="w-detail-confidence">' + Math.round(obs.confidence*100) + '%</span></div>';
       }
       return '';
-    case 'obs':
-      it = PATIENT_B.obs.items.find(function(a){ return a.id === itemId; });
-      return '<div class="w-detail-quote">' + it.quote + '</div>' +
-             '<div class="w-detail-row"><span>카테고리</span><span>' + (it.category === 'sideeffect' ? '부작용' : it.category === 'symptom' ? '증상' : '라이프스타일') + '</span></div>' +
-             '<div class="w-detail-row"><span>AI 신뢰도</span><span class="w-detail-confidence">' + Math.round(it.confidence*100) + '%</span></div>';
     case 'vital':
       it = PATIENT_B.vital.available.find(function(a){ return a.id === itemId; });
       var lastIdxV = it.vals.length - 1;
       return '<div class="w-detail-row"><span>정상 범위</span><span>' + it.normal + '</span></div>' +
-             '<div class="w-detail-row"><span>측정일</span><span>' + PATIENT_B.vital.dates.join(' / ') + '</span></div>' +
+             '<div class="w-detail-row"><span>측정일</span><span>' + it.dates.join(' / ') + '</span></div>' +
              '<div class="w-detail-row"><span>최근 측정</span><span>' +
                colorize(it.vals[lastIdxV], it.colors[lastIdxV]) +
                (it.unit ? ' ' + it.unit : '') +
@@ -2370,7 +2447,7 @@ function buildDetailHtml(widgetId, itemId) {
       var lSeries = it.vals.map(function(v, i){ return colorize(v, it.colors[i]); }).join(' &rarr; ');
       return '<div class="w-detail-row"><span>정상 범위</span><span>' + it.normal + '</span></div>' +
              '<div class="w-detail-row"><span>측정값</span><span style="font-variant-numeric:tabular-nums;">' + lSeries + '</span></div>' +
-             '<div class="w-detail-row"><span>시행일</span><span>' + PATIENT_B.lab.dates.join(' / ') + '</span></div>';
+             '<div class="w-detail-row"><span>시행일</span><span>' + it.dates.join(' / ') + '</span></div>';
     case 'proc':
       it = PATIENT_B.proc.groups.find(function(g){ return g.id === itemId; });
       return '<div class="w-detail-row"><span>시행 횟수</span><span>' + it.dates.length + '회</span></div>' +
@@ -2400,23 +2477,15 @@ function renderWidgetSettings(widgetId) {
     case 'note':
       content = settingsChecklist('note', '표시할 임상메모 카테고리', PATIENT_B.note.available, PATIENT_B.note.tracked, 'badge', 'content');
       break;
-    case 'dxmeds':
-      content = '<div class="w-settings-title">표시 개수</div>' +
+    case 'dxmedsobs':
+      content = '<div class="w-settings-title">표시 상병 수</div>' +
         '<div class="w-settings-options">' +
-          '<label class="w-settings-option"><input type="radio" name="dxmedsCount" value="3" ' + (PATIENT_B.dxMeds.showCount === 3 ? 'checked' : '') + '> Top 3</label>' +
-          '<label class="w-settings-option"><input type="radio" name="dxmedsCount" value="5" ' + (PATIENT_B.dxMeds.showCount === 5 ? 'checked' : '') + '> Top 5</label>' +
-        '</div>';
-      break;
-    case 'obs':
-      content = '<div class="w-settings-title">AI 추출 설정</div>' +
-        '<div class="w-settings-options" style="flex-direction:column;align-items:flex-start;gap:4px;">' +
-          '<label class="w-settings-option"><input type="checkbox" data-obs-on ' + (PATIENT_B.obs.on ? 'checked' : '') + '> AI 추출 사용</label>' +
+          '<label class="w-settings-option"><input type="radio" name="dxCount" value="3" ' + (PATIENT_B.dxMedsObs.showCount === 3 ? 'checked' : '') + '> Top 3</label>' +
+          '<label class="w-settings-option"><input type="radio" name="dxCount" value="5" ' + (PATIENT_B.dxMedsObs.showCount === 5 ? 'checked' : '') + '> Top 5</label>' +
         '</div>' +
-        '<div class="w-settings-title" style="margin-top:8px;">카테고리</div>' +
+        '<div class="w-settings-title" style="margin-top:8px;">AI 추출 관찰</div>' +
         '<div class="w-settings-options">' +
-          '<label class="w-settings-option"><input type="checkbox" data-obs-cat="sideeffect" ' + (PATIENT_B.obs.categories.sideeffect ? 'checked' : '') + '> 부작용</label>' +
-          '<label class="w-settings-option"><input type="checkbox" data-obs-cat="symptom" ' + (PATIENT_B.obs.categories.symptom ? 'checked' : '') + '> 증상</label>' +
-          '<label class="w-settings-option"><input type="checkbox" data-obs-cat="lifestyle" ' + (PATIENT_B.obs.categories.lifestyle ? 'checked' : '') + '> 라이프스타일</label>' +
+          '<label class="w-settings-option"><input type="checkbox" data-ai-obs ' + (PATIENT_B.dxMedsObs.aiObsOn ? 'checked' : '') + '> 표시</label>' +
         '</div>';
       break;
     case 'vital':
@@ -2472,15 +2541,11 @@ function toggleWidgetSettings(widgetId, btnEl) {
 function applyWidgetSettings(widgetId) {
   var panel = document.getElementById('settings-' + widgetId);
   if (!panel) return;
-  if (widgetId === 'dxmeds') {
-    var radio = panel.querySelector('input[name="dxmedsCount"]:checked');
-    if (radio) PATIENT_B.dxMeds.showCount = parseInt(radio.value);
-  } else if (widgetId === 'obs') {
-    var onCb = panel.querySelector('input[data-obs-on]');
-    if (onCb) PATIENT_B.obs.on = onCb.checked;
-    panel.querySelectorAll('input[data-obs-cat]').forEach(function(cb) {
-      PATIENT_B.obs.categories[cb.getAttribute('data-obs-cat')] = cb.checked;
-    });
+  if (widgetId === 'dxmedsobs') {
+    var radio = panel.querySelector('input[name="dxCount"]:checked');
+    if (radio) PATIENT_B.dxMedsObs.showCount = parseInt(radio.value);
+    var aiCb = panel.querySelector('input[data-ai-obs]');
+    if (aiCb) PATIENT_B.dxMedsObs.aiObsOn = aiCb.checked;
   } else if (widgetId === 'proc') {
     var newCats = [];
     panel.querySelectorAll('input[data-proc-cat]').forEach(function(cb) {
