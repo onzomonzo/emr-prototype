@@ -532,26 +532,18 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
   background: linear-gradient(180deg, #FAF5FF 0%, #FFFFFF 55%);
   border-left: 2px solid #C4B5FD;
 }
-.w-card-header {
-  display: flex; align-items: center; gap: 4px;
-  padding: 3px 22px 1px 6px;
-  background: transparent;
-  border-bottom: none;
-}
-.w-card-icon { color: #9CA3AF; flex-shrink: 0; display: inline-flex; }
-.w-card.ai-widget .w-card-icon { color: #8B5CF6; }
-.w-card-title { font-size: 10px; font-weight: 600; color: #6B7280; letter-spacing: 0.01em; }
-.w-card.ai-widget .w-card-title { color: #6D28D9; }
 .w-card-action {
   position: absolute; top: 3px; right: 3px;
   width: 18px; height: 18px;
   display: inline-flex; align-items: center; justify-content: center;
-  border: none; background: transparent; color: #9CA3AF;
+  border: none; background: transparent; color: #C4C9D2;
   border-radius: 3px; cursor: pointer; z-index: 2;
+  opacity: 0.6;
 }
-.w-card-action:hover { background: #F3F4F6; color: #374151; }
-.w-card-action.active { background: #F3E8FF; color: #7C3AED; }
-.w-card-body { padding: 2px 8px 7px; }
+.w-card:hover .w-card-action { opacity: 1; }
+.w-card-action:hover { background: #F3F4F6; color: #374151; opacity: 1; }
+.w-card-action.active { background: #F3E8FF; color: #7C3AED; opacity: 1; }
+.w-card-body { padding: 7px 24px 8px 10px; }
 
 .w-chips { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
 .w-chip {
@@ -616,33 +608,53 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
 }
 .w-td-unit { color: #9CA3AF; font-size: 9px; font-weight: 400; margin-left: 2px; }
 
-/* 백신 칩 (색상-only 상태) */
-.w-chips-vac { display: flex; flex-wrap: wrap; gap: 4px; }
+/* 백신 칩 — 색상 대비 + 위계 강화 */
+.w-chips-vac { display: flex; flex-wrap: wrap; gap: 5px 6px; }
+.w-chip.vac-rec, .w-chip.vac-done {
+  padding: 3px 9px; border-radius: 4px;
+  align-items: baseline; gap: 5px;
+}
 .w-chip.vac-rec {
-  background: #FEE2E2; border-color: #FECACA; color: #991B1B;
+  background: #FEE2E2; border: 1px solid #FCA5A5;
 }
-.w-chip.vac-rec .w-chip-name { color: #991B1B; font-weight: 600; }
-.w-chip.vac-rec .w-chip-meta { color: #B91C1C; }
+.w-chip.vac-rec .w-chip-name {
+  color: #7F1D1D; font-size: 11.5px; font-weight: 700;
+}
+.w-chip.vac-rec .w-chip-meta {
+  color: #B91C1C; font-size: 9.5px; font-weight: 500; opacity: 0.85;
+}
+.w-chip.vac-rec .w-chip-series {
+  background: rgba(127,29,29,0.12); color: #7F1D1D;
+}
 .w-chip.vac-done {
-  background: #F3F4F6; border-color: transparent; color: #6B7280;
+  background: #F3F4F6; border: 1px solid transparent;
 }
-.w-chip.vac-done .w-chip-name { color: #6B7280; font-weight: 500; }
-.w-chip.vac-done .w-chip-meta { color: #9CA3AF; }
+.w-chip.vac-done .w-chip-name {
+  color: #4B5563; font-size: 10.5px; font-weight: 500;
+}
+.w-chip.vac-done .w-chip-meta {
+  color: #9CA3AF; font-size: 9.5px; opacity: 0.85;
+}
 .w-chip.vac-na {
   background: #FAFAFA; border-color: #F3F4F6; color: #9CA3AF;
-  opacity: 0.7;
+  opacity: 0.65;
 }
 .w-chip-series {
   display: inline-block; padding: 0 4px;
   background: rgba(0,0,0,0.06); border-radius: 3px;
-  font-size: 9.5px; font-weight: 600;
+  font-size: 9.5px; font-weight: 700;
 }
 
-/* 임상메모 요약 */
+/* 임상메모 요약 — 인라인 wrap */
+.w-note-list {
+  display: flex; flex-wrap: wrap; gap: 3px 12px;
+}
 .w-note-row {
-  display: flex; align-items: baseline; gap: 6px;
-  padding: 2px 0; font-size: 11px; line-height: 1.5;
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 1px 3px;
+  font-size: 11px; line-height: 1.5;
   cursor: pointer; border-radius: 3px;
+  flex-shrink: 0;
 }
 .w-note-row:hover { background: #F9FAFB; }
 .w-note-row.active { background: #F3E8FF; }
@@ -651,9 +663,9 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
   background: #EEF2FF; color: #4338CA;
   border-radius: 10px; font-size: 9.5px; font-weight: 600;
   letter-spacing: 0.02em;
-  align-self: flex-start; line-height: 1.4;
+  align-self: center; line-height: 1.4;
 }
-.w-note-content { color: #374151; flex: 1; min-width: 0; }
+.w-note-content { color: #374151; }
 
 /* 상병별 처방·관찰 그루핑 */
 .w-dx-group { padding: 4px 2px; }
@@ -699,33 +711,36 @@ body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Pretendard', sa
   padding: 2px 0 2px 12px; font-size: 10px; color: #9CA3AF; font-style: italic;
 }
 
-/* Vital/검사 미니 표 (항목별) */
+/* Vital / 검사 — 가로 컴팩트 (이름 | 미니 표) */
 .w-mini-item {
-  padding: 4px 6px; margin-bottom: 4px;
-  cursor: pointer; border-radius: 4px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 2px 4px; margin-bottom: 1px;
+  cursor: pointer; border-radius: 3px;
+  width: auto; max-width: 100%;
 }
-.w-mini-item:last-child { margin-bottom: 0; }
+.w-mini-item-wrap { display: flex; flex-direction: column; align-items: flex-start; }
 .w-mini-item:hover { background: #F9FAFB; }
 .w-mini-item.active { background: #F3E8FF; }
 .w-mini-item-name {
-  display: flex; align-items: baseline; gap: 4px;
+  display: inline-flex; align-items: baseline; gap: 3px;
   font-size: 10.5px; font-weight: 600; color: #111827;
-  margin-bottom: 2px;
+  flex-shrink: 0; min-width: 48px;
 }
 .w-mt-unit { color: #9CA3AF; font-size: 9px; font-weight: 400; }
 .w-mini-table {
-  width: 100%;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
+  width: auto;
 }
+.w-mini-table td { padding: 0 5px; white-space: nowrap; }
 .w-mini-table tr.dates td {
   color: #9CA3AF; font-size: 9px; text-align: center;
-  padding: 1px 4px; white-space: nowrap;
   border-bottom: 1px solid #F3F4F6;
+  padding-bottom: 1px;
 }
 .w-mini-table tr.vals td {
   color: #374151; font-size: 10.5px; text-align: center;
-  padding: 2px 4px; white-space: nowrap;
+  padding-top: 1px;
 }
 
 /* Pin 표시 (위젯 매니지먼트) */
@@ -2080,7 +2095,7 @@ var PATIENT_B = {
       { id:'alcohol',  badge:'음주',    content:'주 1회 와인 1잔',                                updated:'25.04.10' },
       { id:'exercise', badge:'운동',    content:'주 2~3회 요가',                                  updated:'25.03.20' },
       { id:'weight',   badge:'체중',    content:'25년 들어 점진 증가 (~3kg)',                     updated:'25.04.10' },
-      { id:'family',   badge:'가족력',  content:'모 갑상선기능저하증, 부 류마티스 관절염',          updated:'24.05.20' },
+      { id:'family',   badge:'가족력',  content:'HTN (부), lung ca. (모)',                        updated:'24.05.20' },
       { id:'job',      badge:'직업력',  content:'',                                              updated:null }
     ]
   },
@@ -2235,13 +2250,9 @@ function renderWidgetB(w) {
   var isAi = w.type === 'ai';
   var spanClass = w.span === 2 ? ' span-2' : '';
   return '<div class="w-card' + (isAi ? ' ai-widget' : '') + spanClass + '" data-widget="' + w.id + '">' +
-    '<div class="w-card-header">' +
-      '<span class="w-card-icon">' + widgetIconB(w.id) + '</span>' +
-      '<span class="w-card-title">' + w.title + '</span>' +
-      '<button class="w-card-action" onclick="toggleWidgetSettings(\'' + w.id + '\', this)" title="위젯 설정">' +
-        '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01A1.65 1.65 0 0 0 9 4.6V4.5a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' +
-      '</button>' +
-    '</div>' +
+    '<button class="w-card-action" onclick="toggleWidgetSettings(\'' + w.id + '\', this)" title="위젯 설정">' +
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01A1.65 1.65 0 0 0 9 4.6V4.5a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>' +
+    '</button>' +
     renderWidgetSettings(w.id) +
     '<div class="w-card-body">' + body + '</div>' +
   '</div>';
@@ -2253,16 +2264,17 @@ function colorize(val, colorClass) {
 
 function renderWidgetNote() {
   var note = PATIENT_B.note;
-  var rows = note.tracked
+  var items = note.tracked
     .map(function(tid){ return note.available.find(function(a){ return a.id === tid; }); })
-    .filter(function(it){ return it && it.content && it.content.length > 0; })
-    .map(function(it) {
-      return '<div class="w-note-row" onclick="showWidgetDetail(\'note\',\'' + it.id + '\', this)">' +
-        '<span class="w-badge">' + it.badge + '</span>' +
-        '<span class="w-note-content">' + it.content + '</span>' +
-      '</div>';
-    }).join('');
-  return (rows || '<div class="w-empty">기록된 메모 없음</div>') +
+    .filter(function(it){ return it && it.content && it.content.length > 0; });
+  if (!items.length) return '<div class="w-empty">기록된 메모 없음</div>';
+  var rows = items.map(function(it) {
+    return '<div class="w-note-row" onclick="showWidgetDetail(\'note\',\'' + it.id + '\', this)">' +
+      '<span class="w-badge">' + it.badge + '</span>' +
+      '<span class="w-note-content">' + it.content + '</span>' +
+    '</div>';
+  }).join('');
+  return '<div class="w-note-list">' + rows + '</div>' +
          '<div class="w-detail hidden" id="detail-note"></div>';
 }
 
